@@ -2,7 +2,7 @@
 const express = require("express");
 var csrf = require("tiny-csrf");
 const app = express();
-const { Admin } = require("./models");
+const { Admin, Election } = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
@@ -152,8 +152,64 @@ app.post(
   }),
   function (request, response) {
     console.log(request.user);
-    response.redirect("/todos");
+    response.redirect("/elections");
   }
 );
+
+app.get(
+  "/elections",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const loggedInUser = request.user.id;
+    const allElections = await Election.getElections(loggedInUser);
+    if (request.accepts("html")) {
+      response.render("electionsAdminHome", {
+        title: "Voting Application",
+        allElections,
+        csrfToken: request.csrfToken(),
+      });
+    } else {
+      response.json({
+        allElections,
+      });
+    }
+  }
+);
+
+app.post(
+  "/elections",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    if (request.body.title.trim().length === 0) {
+      request.flash("error", "Title cannot be empty");
+      return response.redirect("/todos");
+    }
+    try {
+      const election = await Election.addElection({
+        title: request.body.title,
+        started: false,
+        ended: false,
+        adminId: request.user.id,
+      });
+      if (request.accepts("html")) {
+        return response.redirect("/elections");
+      } else {
+        return response.json(election);
+      }
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.get("/signout", (request, response, next) => {
+  request.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    response.redirect("/");
+  });
+});
 
 module.exports = app;
