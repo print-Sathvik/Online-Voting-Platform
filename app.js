@@ -118,7 +118,6 @@ app.post("/admin", async (request, response) => {
     return response.redirect("/signup");
   }
   const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
-  console.log(hashedPassword);
   try {
     const user = await Admin.create({
       firstName: request.body.firstName,
@@ -130,7 +129,7 @@ app.post("/admin", async (request, response) => {
       if (err) {
         console.log(err);
       }
-      response.redirect("/todos");
+      response.redirect("/login");
     });
   } catch (error) {
     console.log(error);
@@ -151,7 +150,6 @@ app.post(
     failureFlash: true,
   }),
   function (request, response) {
-    console.log(request.user);
     response.redirect("/elections");
   }
 );
@@ -211,5 +209,38 @@ app.get("/signout", (request, response, next) => {
     response.redirect("/");
   });
 });
+
+app.delete(
+  "/elections/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    try {
+      console.log(request.body);
+      await Election.remove(request.params.id, request.user.id); //Added user id to check who is deleting
+      return response.json({ success: true });
+    } catch (error) {
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.put(
+  "/elections/manage/:id/changeStatus",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    const election = await Election.findByPk(request.params.id);
+    try {
+      const updatedElection = await election.changeStatus(
+        election.id,
+        election.started,
+        election.ended
+      );
+      return response.json(updatedElection);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
 
 module.exports = app;

@@ -6,11 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<%= csrfToken %>" />
     <link href="./css/styles.css" rel="stylesheet">
-    <title>To-Do Manager</title>
+    <title>Online Voting Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        var token = document.querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
+        var token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+        function changeStatus(id)
+        {
+            fetch(`/elections/manage/${id}/changeStatus`, {
+                method: "put",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    "_csrf": token
+                })
+            }).then((res) => {
+                if(res.ok) {
+                    window.location.reload();
+                }
+            })
+            .catch((err) => console.error(err));
+        }
+
+        function deleteElection(id)
+        {
+            fetch(`/elections/${id}`, {
+                method: "delete",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    "_csrf": token
+                })
+            })
+            .then((res) => {
+                if(res.ok) {
+                    window.location.reload();
+                }
+            })
+            .catch((err) => console.error(err));
+        }
     </script>
 
 </head>
@@ -28,7 +59,7 @@
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <div class="flex gap-2 py-4">
                     <div class="flex-auto">
-                        <input type="text" name="title" placeholder="New Election Name?" class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm"/>
+                        <input type="text" name="title" placeholder="New Election Name?" class="border border-gray-300 rounded text-gray-900 w-full p-2 text-base"/>
                     </div>
                     <div class="flex-none">
                         <button type="submit" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Create</button>

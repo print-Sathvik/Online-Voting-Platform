@@ -28,6 +28,29 @@ module.exports = (sequelize, DataTypes) => {
         where: {
           adminId,
         },
+        order: [["id", "DESC"]],
+      });
+    }
+
+    async changeStatus(id, started, ended) {
+      ended = started ? (ended ? ended : true) : ended;
+      started = started ? started : true;
+      return await Election.update(
+        { started, ended },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+    }
+
+    static async remove(id, adminId) {
+      return this.destroy({
+        where: {
+          id,
+          adminId,
+        },
       });
     }
   }
