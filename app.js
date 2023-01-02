@@ -2,7 +2,7 @@
 const express = require("express");
 var csrf = require("tiny-csrf");
 const app = express();
-const { Admin, Election } = require("./models");
+const { Admin, Election, Voter } = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
@@ -59,8 +59,8 @@ passport.use(
             return done(null, false, { message: "Invalid password" });
           }
         })
-        .catch((error) => {
-          return done(error);
+        .catch(() => {
+          return done(null, false, { message: "User does not exist" });
         });
     }
   )
@@ -119,6 +119,12 @@ app.post("/admin", async (request, response) => {
   }
   const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
   try {
+    const prevEmail = await Admin.findOne({
+      where: { email: request.body.email },
+    });
+    if (prevEmail != null) {
+      throw "User already exists";
+    }
     const user = await Admin.create({
       firstName: request.body.firstName,
       lastName: request.body.lastName,
@@ -128,11 +134,14 @@ app.post("/admin", async (request, response) => {
     request.login(user, (err) => {
       if (err) {
         console.log(err);
+        response.redirect("/signup");
       }
       response.redirect("/login");
     });
   } catch (error) {
     console.log(error);
+    request.flash("error", "User already exists. Please Login");
+    response.redirect("/login");
   }
 });
 
@@ -224,6 +233,7 @@ app.delete(
   }
 );
 
+//To change election from Not started -> Started -> Ended
 app.put(
   "/elections/manage/:id/changeStatus",
   connectEnsureLogin.ensureLoggedIn(),
@@ -239,6 +249,50 @@ app.put(
     } catch (error) {
       console.log(error);
       return response.status(422).json(error);
+    }
+  }
+);
+
+//Manage a specific election after clicking on 'Manage' in the list of elections page
+app.get(
+  "/elections/manage/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    const election = await Election.findByPk(request.params.id);
+    response.render("manageElection", {
+      title: "Manage",
+      electionTitle: election.title,
+      electionId: request.params.id,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+//Add Voters for a particular election
+app.post(
+  "/addVoter",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
+    console.log(hashedPassword);
+    try {
+      const user = await Voter.create({
+        firstName: request.body.firstName,
+        lastName: request.body.lastName,
+        email: request.body.email,
+        password: hashedPassword,
+      });
+      request.login(user, (err) => {
+        if (err) {
+          console.log(err);
+          response.redirect("/signup");
+        }
+        response.redirect("/todos");
+      });
+    } catch (error) {
+      console.log(error);
+      request.flash("error", "User already exits. Please Login");
+      response.redirect("/login");
     }
   }
 );
