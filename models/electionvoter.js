@@ -9,14 +9,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      ElectionVoter.hasMany(models.Voter, {
-        foreignKey: "voterId",
+    }
+
+    static async getVoters(electionId) {
+      const votersList = await ElectionVoter.findAll({
+        where: {
+          electionId,
+        },
       });
+      return votersList;
     }
   }
   ElectionVoter.init(
     {
       electionId: DataTypes.INTEGER,
+      voterId: DataTypes.INTEGER,
     },
     {
       sequelize,

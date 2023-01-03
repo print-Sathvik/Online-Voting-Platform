@@ -2,7 +2,7 @@
 const express = require("express");
 var csrf = require("tiny-csrf");
 const app = express();
-const { Admin, Election, Voter } = require("./models");
+const { Admin, Election, Voter, ElectionVoter } = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
@@ -44,6 +44,7 @@ app.use(passport.session());
 app.use(flash());
 
 passport.use(
+  "AdminAuthenticate",
   new LocalStrategy(
     {
       usernameField: "email",
@@ -101,10 +102,6 @@ app.get("/signup", async (request, response) => {
 });
 
 app.post("/admin", async (request, response) => {
-  //I used trim() so that empty strings of any length are counted as 0 only
-  //even empty strings are not allowed.
-  //I put restrictions on firstname, email and password only
-  //Last name is optional.
   if (request.body.firstName.trim().length === 0) {
     request.flash("error", "First name is mandatory");
     return response.redirect("/signup");
@@ -119,10 +116,10 @@ app.post("/admin", async (request, response) => {
   }
   const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
   try {
-    const prevEmail = await Admin.findOne({
+    const existingEmail = await Admin.findOne({
       where: { email: request.body.email },
     });
-    if (prevEmail != null) {
+    if (existingEmail !== null) {
       throw "User already exists";
     }
     const user = await Admin.create({
@@ -136,7 +133,7 @@ app.post("/admin", async (request, response) => {
         console.log(err);
         response.redirect("/signup");
       }
-      response.redirect("/login");
+      response.redirect("/elections");
     });
   } catch (error) {
     console.log(error);
@@ -154,7 +151,7 @@ app.get("/login", (request, response) => {
 
 app.post(
   "/session",
-  passport.authenticate("local", {
+  passport.authenticate("AdminAuthenticate", {
     failureRedirect: "/login",
     failureFlash: true,
   }),
@@ -268,31 +265,56 @@ app.get(
   }
 );
 
+app.get(
+  "/elections/manage/:id/manageVoters",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const elecId = request.params.id;
+    const voterTableIds = await ElectionVoter.getVoters(elecId);
+    const allVoters = await Voter.getVoters(voterTableIds);
+    response.render("manageVoters", {
+      electionId: elecId,
+      allVoters,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
 //Add Voters for a particular election
 app.post(
   "/addVoter",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
-    console.log(hashedPassword);
     try {
+      const existingUser = await Voter.findOne({
+        where: { voterId: request.body.voterId },
+      });
+      if (existingUser !== null) {
+        throw "This voter ID already exists, please give a diferent ID";
+      }
       const user = await Voter.create({
-        firstName: request.body.firstName,
-        lastName: request.body.lastName,
-        email: request.body.email,
+        voterId: request.body.voterId,
         password: hashedPassword,
       });
-      request.login(user, (err) => {
-        if (err) {
-          console.log(err);
-          response.redirect("/signup");
-        }
-        response.redirect("/todos");
+      console.log(user);
+      const ev = await ElectionVoter.create({
+        electionId: request.body.electionId,
+        voterId: user.id,
       });
+      console.log(ev);
+      return response.redirect(
+        `/elections/manage/${request.body.electionId}/manageVoters`
+      );
     } catch (error) {
       console.log(error);
-      request.flash("error", "User already exits. Please Login");
-      response.redirect("/login");
+      request.flash(
+        "error",
+        "This voter ID already exists, please give a diferent ID"
+      );
+      response.redirect(
+        `/elections/manage/${request.body.electionId}/manageVoters`
+      );
     }
   }
 );

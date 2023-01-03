@@ -12,6 +12,9 @@ module.exports = {
       electionId: {
         type: Sequelize.INTEGER,
       },
+      voterId: {
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
