@@ -2,7 +2,7 @@
 const express = require("express");
 var csrf = require("tiny-csrf");
 const app = express();
-const { Admin, Election, Voter, ElectionVoter } = require("./models");
+const { Admin, Election, Voter, ElectionVoter, Question } = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
@@ -269,11 +269,11 @@ app.get(
   "/elections/manage/:id/manageVoters",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    const elecId = request.params.id;
-    const voterTableIds = await ElectionVoter.getVoters(elecId);
+    const electionId = request.params.id;
+    const voterTableIds = await ElectionVoter.getVoters(electionId);
     const allVoters = await Voter.getVoters(voterTableIds);
     response.render("manageVoters", {
-      electionId: elecId,
+      electionId: electionId,
       allVoters,
       csrfToken: request.csrfToken(),
     });
@@ -287,22 +287,15 @@ app.post(
   async (request, response) => {
     const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
     try {
-      const existingUser = await Voter.findOne({
-        where: { voterId: request.body.voterId },
-      });
-      if (existingUser !== null) {
-        throw "This voter ID already exists, please give a diferent ID";
-      }
       const user = await Voter.create({
         voterId: request.body.voterId,
         password: hashedPassword,
       });
       console.log(user);
-      const ev = await ElectionVoter.create({
+      await ElectionVoter.create({
         electionId: request.body.electionId,
         voterId: user.id,
       });
-      console.log(ev);
       return response.redirect(
         `/elections/manage/${request.body.electionId}/manageVoters`
       );
@@ -316,6 +309,58 @@ app.post(
         `/elections/manage/${request.body.electionId}/manageVoters`
       );
     }
+  }
+);
+
+app.get(
+  "/elections/manage/:id/newQuestion",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const electionId = request.params.id;
+    const questions = await Question.getQuestions(electionId);
+    response.render("addQuestion", {
+      electionId,
+      questions,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+app.post(
+  "/addQuestion",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const question = await Question.create({
+        title: request.body.title,
+        description: request.body.description,
+        electionId: request.body.electionId,
+      });
+      console.log(question);
+      request.flash("message", "Question added Successfully");
+      return response.redirect(
+        `/elections/manage/${request.body.electionId}/manageQuestions`
+      );
+    } catch (error) {
+      console.log(error);
+      response.redirect(
+        `/elections/manage/${request.body.electionId}/manageQuestions`
+      );
+    }
+  }
+);
+
+app.get(
+  "/elections/manage/:id/manageQuestions",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const electionId = request.params.id;
+    const questions = await Question.getQuestions(electionId);
+    response.render("manageQuestions", {
+      electionId,
+      questions,
+      csrfToken: request.csrfToken(),
+    });
   }
 );
 
