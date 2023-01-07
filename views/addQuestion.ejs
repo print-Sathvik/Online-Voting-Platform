@@ -27,14 +27,16 @@
                   <% } %>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="electionId" value="<%= electionId %>" />
-                <div class="flex gap-2 py-4">
-                    <div class="flex-auto">
-                        <input type="text" name="title" placeholder="Question Goes Here...." class="border border-gray-300 rounded text-gray-900 w-full p-2 text-xl"/>
+                <div class="py-4">
+                    <div class="py-2">
+                        <label for="firstName">Question:</label>
+                        <input type="text" name="title" placeholder="Question Goes Here...." class="border border-gray-300 text-black-900 rounded p-2 w-full">
                     </div>
-                    <div class="flex-auto">
-                        <input type="text" name="description" placeholder="Describe your question...." class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm"/>
+                    <div class="py-2">
+                        <label for="description">Description:</label>
+                        <input type="text" name="description" placeholder="Describe your question...." class="border border-gray-300 rounded text-black-900 w-full p-2 text-sm"/>
                     </div>
-                    <div class="flex-none">
+                    <div class="py-2">
                         <button type="submit" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Add Question</button>
                     </div>
                 </div>

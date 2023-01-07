@@ -6,3 +6,8 @@ body {
 .Todo-Item:hover .trash-icon {
   display: block;
 }
+
+.inline
+{
+  display: inline;
+}
