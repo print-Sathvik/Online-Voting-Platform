@@ -298,7 +298,6 @@ app.post(
         voterId: request.body.voterId,
         password: hashedPassword,
       });
-      console.log(user);
       await ElectionVoter.create({
         electionId: request.body.electionId,
         voterId: user.id,
@@ -329,7 +328,6 @@ app.get(
     for (let i = 0; i < questions.length; i++) {
       options[i] = await Option.getOptions(questions[i].id);
     }
-    console.log(options);
     response.render("addQuestion", {
       electionId,
       questions,
@@ -357,7 +355,6 @@ app.post(
         description: request.body.description,
         electionId: request.body.electionId,
       });
-      console.log(question);
       await Option.create({
         option: option1,
         questionId: question.id,
@@ -388,12 +385,7 @@ app.get(
     let options = new Array(questions.length);
     for (let i = 0; i < questions.length; i++) {
       options[i] = await Option.getOptions(questions[i].id);
-      console.log(options[i]);
     }
-    console.log(
-      "******************************************************",
-      options
-    );
     response.render("manageQuestions", {
       electionId,
       questions,
@@ -415,6 +407,50 @@ app.get(
       options,
       csrfToken: request.csrfToken(),
     });
+  }
+);
+
+app.post(
+  "/updateQuestion",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Question.update(
+        {
+          title: request.body.title,
+          description: request.body.description,
+        },
+        {
+          where: {
+            id: request.body.questionId,
+          },
+        }
+      );
+
+      console.log(
+        "==================================================*********************"
+      );
+      await Option.remove(request.body.questionId);
+      for (let i = 1; ; i++) {
+        let opt = eval(`request.body.option${i}`);
+        if (opt == undefined) {
+          break;
+        } else {
+          console.log(opt);
+          let newOption = await Option.create({
+            option: opt,
+            questionId: request.body.questionId,
+          });
+          console.log(newOption);
+        }
+      }
+      request.flash("message", "Question Updated");
+      return response.redirect(
+        `/elections/manage/${request.body.electionId}/manageQuestions`
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 );
 

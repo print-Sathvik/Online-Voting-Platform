@@ -20,7 +20,6 @@
             t.id="option" + textBoxId;
             t.name="option" + textBoxId;
             id = "option" + textBoxId;
-            console.log("///////////////////////////////////////////////////////////////////////",id);
             var l = document.createElement("label");
             l.id = "label" + textBoxId
             l.for = id;
@@ -35,6 +34,10 @@
             var t=document.getElementById("option"+textBoxId);
             var l=document.getElementById("label"+textBoxId);
             var b = document.getElementsByTagName("br")
+            if(textBoxId == 2) {
+                console.log("Should have atleast two options");
+                throw "Should have atleast two options";
+            }
             document.getElementById("optionsDiv").removeChild(t);
             document.getElementById("optionsDiv").removeChild(l);
             document.getElementById("optionsDiv").removeChild(b[b.length-1]);
@@ -56,6 +59,7 @@
                   <% } %>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="electionId" value="<%= question.electionId %>" />
+                <input type="hidden" name="questionId" value="<%= question.id %>" />
                 <div class="py-4">
                     <div class="py-2">
                         <label for="title">Question:</label>
@@ -67,8 +71,8 @@
                     </div>
                     <div id="optionsDiv">
                         <% for(let i=0; i < options.length; i++) { %>
-                            <label for="option<%= i+1 %>">Option <%= i+1 %>:</label>
-                            <input type="text" name="option<%= i+1 %>" value="<%= options[i].option %>" class="border border-gray-300 text-black-900 rounded py-2">
+                            <label for="option<%= i+1 %>" id="label<%= i+1 %>">Option <%= i+1 %>:</label>
+                            <input type="text" name="option<%= i+1 %>" id="option<%= i+1 %>" value="<%= options[i].option %>" class="border border-gray-300 text-black-900 rounded py-2">
                             <br>
                         <% } %>
                     </div>

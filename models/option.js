@@ -17,6 +17,14 @@ module.exports = (sequelize, DataTypes) => {
         order: [["id", "ASC"]],
       });
     }
+
+    static async remove(questionId) {
+      return this.destroy({
+        where: {
+          questionId,
+        },
+      });
+    }
   }
   Option.init(
     {
