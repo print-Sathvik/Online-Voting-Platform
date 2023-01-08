@@ -403,7 +403,7 @@ app.get(
   }
 );
 
-app.post(
+app.get(
   "/questions/manage/:questionid/editQuestion",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
