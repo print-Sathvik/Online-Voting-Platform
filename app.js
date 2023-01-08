@@ -427,9 +427,6 @@ app.post(
         }
       );
 
-      console.log(
-        "==================================================*********************"
-      );
       await Option.remove(request.body.questionId);
       for (let i = 1; ; i++) {
         let opt = eval(`request.body.option${i}`);
@@ -451,6 +448,23 @@ app.post(
     } catch (error) {
       console.log(error);
     }
+  }
+);
+
+app.delete(
+  "/questions/manage/:questionId",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    await Option.remove(request.params.questionId);
+    //Deleting the options for the deleted question
+
+    await Question.destroy({
+      where: {
+        id: request.params.questionId,
+      },
+    });
+
+    return response.json({ success: true });
   }
 );
 
