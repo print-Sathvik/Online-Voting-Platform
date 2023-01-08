@@ -9,6 +9,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      ElectionVoter.belongsTo(models.Election, {
+        foreignKey: "electionId",
+      });
+
+      ElectionVoter.belongsTo(models.Voter, {
+        foreignKey: "voterId",
+      });
     }
 
     static async getVoters(electionId) {

@@ -2,7 +2,14 @@
 const express = require("express");
 var csrf = require("tiny-csrf");
 const app = express();
-const { Admin, Election, Voter, ElectionVoter, Question } = require("./models");
+const {
+  Admin,
+  Election,
+  Voter,
+  ElectionVoter,
+  Question,
+  Option,
+} = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 
@@ -318,9 +325,15 @@ app.get(
   async (request, response) => {
     const electionId = request.params.id;
     const questions = await Question.getQuestions(electionId);
+    let options = new Array(questions.length);
+    for (let i = 0; i < questions.length; i++) {
+      options[i] = await Option.getOptions(questions[i].id);
+    }
+    console.log(options);
     response.render("addQuestion", {
       electionId,
       questions,
+      options,
       csrfToken: request.csrfToken(),
     });
   }
@@ -330,6 +343,14 @@ app.post(
   "/addQuestion",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    const option1 = request.body.option1;
+    const option2 = request.body.option2;
+    if (option1.trim().length === 0 || option2.trim().length === 0) {
+      request.flash("error", "Options cannot be empty");
+      return response.redirect(
+        `/elections/manage/${request.body.electionId}/newQuestion`
+      );
+    }
     try {
       const question = await Question.create({
         title: request.body.title,
@@ -337,6 +358,14 @@ app.post(
         electionId: request.body.electionId,
       });
       console.log(question);
+      await Option.create({
+        option: option1,
+        questionId: question.id,
+      });
+      await Option.create({
+        option: option2,
+        questionId: question.id,
+      });
       request.flash("message", "Question added Successfully");
       return response.redirect(
         `/elections/manage/${request.body.electionId}/manageQuestions`
@@ -356,9 +385,34 @@ app.get(
   async (request, response) => {
     const electionId = request.params.id;
     const questions = await Question.getQuestions(electionId);
+    let options = new Array(questions.length);
+    for (let i = 0; i < questions.length; i++) {
+      options[i] = await Option.getOptions(questions[i].id);
+      console.log(options[i]);
+    }
+    console.log(
+      "******************************************************",
+      options
+    );
     response.render("manageQuestions", {
       electionId,
       questions,
+      options,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+app.post(
+  "/questions/manage/:questionid/editQuestion",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const questionId = request.params.questionid;
+    const question = await Question.findByPk(questionId);
+    const options = await Option.getOptions(questionId);
+    response.render("editQuestion", {
+      question,
+      options,
       csrfToken: request.csrfToken(),
     });
   }
