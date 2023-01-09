@@ -517,4 +517,34 @@ app.delete(
   }
 );
 
+app.get("/vote/election/:id", async (request, response) => {
+  const electionId = request.params.id;
+  const election = await Election.findByPk(request.params.id);
+  const questions = await Question.getQuestions(electionId);
+  let options = new Array(questions.length);
+  for (let i = 0; i < questions.length; i++) {
+    options[i] = await Option.getOptions(questions[i].id);
+  }
+  if (election.started == true && election.ended == false) {
+    response.render("result", {
+      electionId,
+      questions,
+      options,
+      message: "The questions will appear here",
+      csrfToken: request.csrfToken(),
+    });
+  } else if (election.started == false) {
+    response.render("result", {
+      message: "Election has not yet started",
+      csrfToken: request.csrfToken(),
+    });
+  } else {
+    response.render("result", {
+      message:
+        "Election has ended. Results will appear here but the page is not ready. Come back soon",
+      csrfToken: request.csrfToken(),
+    });
+  }
+});
+
 module.exports = app;
