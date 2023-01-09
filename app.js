@@ -176,6 +176,7 @@ app.get(
     if (request.accepts("html")) {
       response.render("electionsAdminHome", {
         title: "Voting Application",
+        firstName: request.user.firstName,
         allElections,
         csrfToken: request.csrfToken(),
       });
@@ -267,6 +268,25 @@ app.get(
       title: "Manage",
       electionTitle: election.title,
       electionId: request.params.id,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
+app.get(
+  "/elections/manage/:id/preview",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    const electionId = request.params.id;
+    const questions = await Question.getQuestions(electionId);
+    let options = new Array(questions.length);
+    for (let i = 0; i < questions.length; i++) {
+      options[i] = await Option.getOptions(questions[i].id);
+    }
+    response.render("preview", {
+      electionId,
+      questions,
+      options,
       csrfToken: request.csrfToken(),
     });
   }
@@ -381,17 +401,27 @@ app.get(
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     const electionId = request.params.id;
-    const questions = await Question.getQuestions(electionId);
-    let options = new Array(questions.length);
-    for (let i = 0; i < questions.length; i++) {
-      options[i] = await Option.getOptions(questions[i].id);
+    const election = await Election.findByPk(request.params.id);
+    try {
+      if (election.started == true) {
+        throw "Election has started. You cannot modify the questions now";
+      }
+      const questions = await Question.getQuestions(electionId);
+      let options = new Array(questions.length);
+      for (let i = 0; i < questions.length; i++) {
+        options[i] = await Option.getOptions(questions[i].id);
+      }
+      response.render("manageQuestions", {
+        electionId,
+        questions,
+        options,
+        csrfToken: request.csrfToken(),
+      });
+    } catch (error) {
+      console.log(error);
+      request.flash("error", error);
+      response.redirect(`/elections/manage/${electionId}`);
     }
-    response.render("manageQuestions", {
-      electionId,
-      questions,
-      options,
-      csrfToken: request.csrfToken(),
-    });
   }
 );
 
@@ -447,6 +477,25 @@ app.post(
       );
     } catch (error) {
       console.log(error);
+    }
+  }
+);
+
+app.post(
+  "/questions/manage/:id/launch",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.id);
+    try {
+      const updatedElection = await election.changeStatus(
+        election.id,
+        election.started,
+        election.ended
+      );
+      return response.redirect("/elections");
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
     }
   }
 );

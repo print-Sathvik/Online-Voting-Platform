@@ -11,6 +11,38 @@
     <script>
         var token = document.querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
+        let textBoxId = <%= options.length %>;
+        function addTextBox()
+        {
+            var t=document.createElement("input");
+            t.type="text";
+            textBoxId++;
+            t.id="option" + textBoxId;
+            t.name="option" + textBoxId;
+            id = "option" + textBoxId;
+            var l = document.createElement("label");
+            l.id = "label" + textBoxId
+            l.for = id;
+            l.innerHTML = "Option " + textBoxId + ": ";
+            var textBox = document.getElementById(id);
+            document.getElementById("optionsDiv").appendChild(l);
+            document.getElementById("optionsDiv").appendChild(t);
+            document.getElementById("optionsDiv").appendChild(document.createElement("br"));
+        }
+        function deleteTextBox()
+        {
+            var t=document.getElementById("option"+textBoxId);
+            var l=document.getElementById("label"+textBoxId);
+            var b = document.getElementsByTagName("br")
+            if(textBoxId == 2) {
+                console.log("Should have atleast two options");
+                throw "Should have atleast two options";
+            }
+            document.getElementById("optionsDiv").removeChild(t);
+            document.getElementById("optionsDiv").removeChild(l);
+            document.getElementById("optionsDiv").removeChild(b[b.length-1]);
+            textBoxId--;
+        }
     </script>
 
 </head>

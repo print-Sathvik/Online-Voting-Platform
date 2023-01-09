@@ -13,11 +13,16 @@
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-2">
             <%- include('header.ejs') %>
-            <h1><%= electionTitle %></h1>
+            <h1 class="text-xl"><%= electionTitle %></h1>
+            <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                        <li> <%= messages.error[i] %></li>
+                <% } %>
+              <% } %>
             <div>
-                <a href="/elections/manage/<%= electionId %>/manageVoters" class="text-green-600">Manage Voters</a>
+                <a href="/elections/manage/<%= electionId %>/manageVoters" class="text-green-600 text-lg py-4">Manage Voters</a>
                 <br>
-                <a href="/elections/manage/<%= electionId %>/manageQuestions" class="text-green-600">Manage Questions</a>
+                <a href="/elections/manage/<%= electionId %>/manageQuestions" class="text-green-600 text-lg py-4">Manage Questions</a>
             </div>
         </div>
     </div>
