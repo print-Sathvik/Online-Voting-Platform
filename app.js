@@ -194,7 +194,7 @@ app.post(
   async function (request, response) {
     if (request.body.title.trim().length === 0) {
       request.flash("error", "Title cannot be empty");
-      return response.redirect("/todos");
+      return response.redirect("/elections");
     }
     try {
       const election = await Election.addElection({
