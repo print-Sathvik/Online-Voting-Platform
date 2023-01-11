@@ -1,5 +1,4 @@
 body {
-  background-color: white;
   font-family: "Times New Roman", Times, serif;
 }
 
@@ -13,4 +12,33 @@ body {
 
 .myClass {
   background: red;
+}
+
+.menuBackground {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+.floatLeft {
+  float: left;
+}
+
+.menuitem {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  float: left;
+  text-decoration: none;
+}
+
+.activePage {
+  background-color: #04AA6D;
+}
+
+.h1center {
+  text-align: center;
 }

@@ -5,14 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content= "<%= csrfToken %>">
-    <link href="./css/style.css" rel="stylesheet" />
+    <link href="/css/styles.css" rel="stylesheet" />
     <title><%= title %></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
 </head>
-<body>
+<body class="bodyst">
+    <%- include("header.ejs") %>
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-2">
-          <%- include("header.ejs") %> 
           <h6 class="py-4">Login to your Admin account</h6>
           <form action="/session" method="post">
             <% if(messages && messages.error && messages.error.length > 0)  { %>

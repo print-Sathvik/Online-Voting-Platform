@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<%= csrfToken %>" />
-    <link href="./css/styles.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
     <title>Online Voting Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -47,9 +47,9 @@
 
 </head>
 <body>
+    <%- include('header.ejs') %>
     <div class="grid grid-cols-6">
         <div class="col-start-2 col-span-3">
-            <%- include('header.ejs') %>
             <a href="/signout" class="text-green-600">Signout</a>
             <form action="/addQuestion" method="post">
                 <% if(messages && messages.error && messages.error.length > 0)  { %>

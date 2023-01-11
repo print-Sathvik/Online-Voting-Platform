@@ -24,8 +24,6 @@ const saltRounds = 10;
 
 app.use(bodyParser.json());
 const path = require("path");
-// eslint-disable-next-line no-unused-vars
-const { response } = require("express");
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("A secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
