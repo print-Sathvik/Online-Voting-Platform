@@ -1,3 +1,6 @@
+# Update 1:
+Added basic menu bar and Added styles to dynamic text fields in editQuestion page, so the input text fields are now visible
+
 # Online-Voting-Platform
 
 This is a election site where the admins can add voters to an election created by them. The voters will be able to cast their votes after the election starts and evryone can view results after the election ends.

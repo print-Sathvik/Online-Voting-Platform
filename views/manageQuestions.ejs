@@ -32,11 +32,16 @@
 </head>
 <body>
     <%- include('header.ejs') %>
+    <div class="centerElement">
+        <a href="/elections/manage/<%= electionId %>/newQuestion"><button type="button" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">New Question</button></a>
+    </div>
     <div class="grid grid-cols-6">
         <div class="col-start-2 col-span-3">
-            <a href="/signout" class="text-green-600">Signout</a>
-            <br>
-            <a href="/elections/manage/<%= electionId %>/newQuestion"><button type="button" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">New Question</button></a>
+            <% if(messages && messages.success && messages.success.length > 0)  { %>
+                <% for(var i=0; i<messages.success.length; i++) { %>
+                        <li> <%= messages.success[i] %></li>
+                <% } %>
+              <% } %>
             <div>
                 <% for(var i=0; i < questions.length; i++) { %>
                     <div class="py-2">

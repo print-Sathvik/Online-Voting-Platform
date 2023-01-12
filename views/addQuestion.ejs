@@ -8,10 +8,18 @@
     <link href="/css/styles.css" rel="stylesheet">
     <title>Online Voting Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        input[type=text] {
+        padding: 12px 15px;
+        margin: 8px 0;
+        border: 2px solid black;
+        border-radius: 4px;
+        }
+    </style>
     <script>
         var token = document.querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
-        let textBoxId = <%= options.length %>;
+        let textBoxId = 2;
         function addTextBox()
         {
             var t=document.createElement("input");
@@ -44,7 +52,6 @@
             textBoxId--;
         }
     </script>
-
 </head>
 <body>
     <%- include('header.ejs') %>
@@ -68,15 +75,18 @@
                         <label for="description">Description:</label>
                         <textarea name="description" rows="5" placeholder="Describe your question...." class="border border-gray-300 rounded text-black-900 w-full p-2 text-sm"></textarea>
                     </div>
-                    <div>
-                        <label for=`option1`>Option 1:</label>
-                        <input type="text" name="option1" class="border border-gray-300 text-black-900 rounded py-1">
-                    </div>
-                    <div>
-                        <label for=`option2`>Option 2:</label>
-                        <input type="text" name="option2" class="border border-gray-300 text-black-900 rounded py-1">
+                    <div id="optionsDiv">
+                        <% for(let i=0; i < 2; i++) { %>
+                            <label for="option<%= i+1 %>" id="label<%= i+1 %>">Option <%= i+1 %>:</label>
+                            <input type="text" name="option<%= i+1 %>" id="option<%= i+1 %>">
+                            <br>
+                        <% } %>
                     </div>
                     <div class="py-2">
+                        <button type="button" onclick="addTextBox()" class="bg-yellow-600 hover:bg-yellow-900 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Add</button>
+                        <button type="button" onclick="deleteTextBox()" class="bg-red-600 hover:bg-red-900 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Remove</button>
+                    </div>
+                    <div class="py-2 centerElement">
                         <button type="submit" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Add Question</button>
                     </div>
                 </div>

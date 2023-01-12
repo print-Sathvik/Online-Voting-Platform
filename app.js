@@ -368,27 +368,44 @@ app.post(
       );
     }
     try {
-      const question = await Question.create({
+      const newQuestion = await Question.create({
         title: request.body.title,
         description: request.body.description,
         electionId: request.body.electionId,
       });
-      await Option.create({
-        option: option1,
-        questionId: question.id,
-      });
-      await Option.create({
-        option: option2,
-        questionId: question.id,
-      });
-      request.flash("message", "Question added Successfully");
+
+      let i = 1;
+      let opt = eval(`request.body.option${i}`);
+      while (opt != undefined) {
+        opt = eval(`request.body.option${i}`);
+        if (opt == undefined) {
+          break;
+        } else if (opt.trim().length == 0) {
+          throw "Options cannot be empty and there should be atleast 2 options";
+        }
+        i++;
+      }
+
+      for (let i = 1; ; i++) {
+        opt = eval(`request.body.option${i}`);
+        if (opt == undefined) {
+          break;
+        } else {
+          await Option.create({
+            option: opt,
+            questionId: newQuestion.id,
+          });
+        }
+      }
+      request.flash("success", "Question added Successfully");
       return response.redirect(
         `/elections/manage/${request.body.electionId}/manageQuestions`
       );
     } catch (error) {
       console.log(error);
+      request.flash("error", error);
       response.redirect(
-        `/elections/manage/${request.body.electionId}/manageQuestions`
+        `/elections/manage/${request.body.electionId}/newQuestion`
       );
     }
   }
@@ -455,26 +472,41 @@ app.post(
         }
       );
 
+      //Validating
+      let i = 1;
+      let opt = eval(`request.body.option${i}`);
+      while (opt != undefined) {
+        opt = eval(`request.body.option${i}`);
+        if (opt == undefined) {
+          break;
+        } else if (opt.trim().length == 0) {
+          throw "Options cannot be empty";
+        }
+        i++;
+      }
+
       await Option.remove(request.body.questionId);
       for (let i = 1; ; i++) {
-        let opt = eval(`request.body.option${i}`);
+        opt = eval(`request.body.option${i}`);
         if (opt == undefined) {
           break;
         } else {
-          console.log(opt);
-          let newOption = await Option.create({
+          await Option.create({
             option: opt,
             questionId: request.body.questionId,
           });
-          console.log(newOption);
         }
       }
-      request.flash("message", "Question Updated");
+      request.flash("success", "Question Updated Successfully");
       return response.redirect(
         `/elections/manage/${request.body.electionId}/manageQuestions`
       );
     } catch (error) {
       console.log(error);
+      request.flash("error", error);
+      return response.redirect(
+        `/questions/manage/${request.body.questionId}/editQuestion`
+      );
     }
   }
 );
