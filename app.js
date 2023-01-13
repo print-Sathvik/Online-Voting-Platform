@@ -556,7 +556,7 @@ app.get("/vote/election/:id", async (request, response) => {
     options[i] = await Option.getOptions(questions[i].id);
   }
   if (election.started == true && election.ended == false) {
-    response.render("result", {
+    response.render("castVote", {
       electionId,
       questions,
       options,
@@ -576,5 +576,18 @@ app.get("/vote/election/:id", async (request, response) => {
     });
   }
 });
+
+app.post(
+  "/addVote",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log(request.user.id, request.user.email);
+    const electionId = request.body.electionId;
+    const questions = await Question.getQuestions(electionId);
+    for (let i = 0; i < questions.length; i++) {
+      console.log(questions[i].id, eval(`request.body.option${i + 1}`));
+    }
+  }
+);
 
 module.exports = app;

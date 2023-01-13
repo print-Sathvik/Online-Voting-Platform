@@ -1,4 +1,5 @@
 # Update 1:
+
 Added basic menu bar and Added styles to dynamic text fields in editQuestion page, so the input text fields are now visible
 
 # Online-Voting-Platform

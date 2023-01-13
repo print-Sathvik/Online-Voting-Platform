@@ -10,10 +10,6 @@ body {
   display: inline;
 }
 
-.myClass {
-  background: red;
-}
-
 .menuBackground {
   list-style-type: none;
   margin: 0;
@@ -23,7 +19,7 @@ body {
 }
 
 .floatLeft {
-  float: left;
+  float: right;
 }
 
 .menuitem {

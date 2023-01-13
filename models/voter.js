@@ -3,8 +3,11 @@ const { Model, Op } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Voter extends Model {
     static associate(models) {
-      // define association here
       Voter.hasOne(models.ElectionVoter, {
+        foreignKey: "voterId",
+      });
+
+      Voter.hasMany(models.Response, {
         foreignKey: "voterId",
       });
     }
