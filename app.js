@@ -100,13 +100,18 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  console.log("Serialising user in session", user.id);
-  done(null, user.id);
+  if (user.email == undefined) {
+    user.dataValues.userType = "voter";
+  } else {
+    user.dataValues.userType = "admin";
+  }
+  console.log("Serialising user in session", user);
+  done(null, user);
 });
 
-passport.deserializeUser((id, done) => {
-  //I(virus47) am serializing only id because Admin and Voter table have different entries
-  done(null, { id: id });
+passport.deserializeUser((user, done) => {
+  //I(virus47) am serializing user because Admin and Voter table have different entries
+  done(null, user);
 });
 
 app.use(function (request, response, next) {
@@ -638,7 +643,7 @@ app.post(
 );
 
 app.get("/resultsss", async (request, response) => {
-  console.log(request.user);
+  console.log(request.user.email, request.user.voterId, request.user.userType);
   response.render("result", {
     message: "Hello",
     csrfToken: request.csrfToken(),
