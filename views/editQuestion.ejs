@@ -59,7 +59,6 @@
     <%- include('header.ejs') %>
     <div class="grid grid-cols-6">
         <div class="col-start-2 col-span-3">
-            <a href="/signout" class="text-green-600">Signout</a>
             <form action="/updateQuestion" method="post">
                 <% if(messages && messages.error && messages.error.length > 0)  { %>
                     <% for(var i=0; i<messages.error.length; i++) { %>

@@ -18,7 +18,6 @@
     <%- include('header.ejs') %>
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-2">
-            <a href="/signout" class="text-green-600">Signout</a>
             <form action="/addVoter" method="post">
                 <% if(messages && messages.error && messages.error.length > 0)  { %>
                     <% for(var i=0; i<messages.error.length; i++) { %>
@@ -32,7 +31,7 @@
                         <input type="text" name="voterId" placeholder="Voter ID?" class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm"/>
                     </div>
                     <div class="flex-auto">
-                        <input type="password" name="password" required class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm leading-4" />
+                        <input type="password" name="password" placeholder="Password" required class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm" />
                     </div>
                     <div class="flex-none">
                         <button type="submit" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Add</button>

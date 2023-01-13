@@ -9,6 +9,7 @@ const {
   ElectionVoter,
   Question,
   Option,
+  Response,
 } = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
@@ -24,6 +25,8 @@ const saltRounds = 10;
 
 app.use(bodyParser.json());
 const path = require("path");
+const { request } = require("https");
+const { response } = require("express");
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("A secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
@@ -72,19 +75,38 @@ passport.use(
   )
 );
 
+passport.use(
+  "VoterAuthenticate",
+  new LocalStrategy(
+    {
+      usernameField: "voterid",
+      passwordField: "password",
+    },
+    (username, password, done) => {
+      Voter.findOne({ where: { voterId: username } })
+        .then(async function (user) {
+          const result = await bcrypt.compare(password, user.password);
+          if (result) {
+            return done(null, user);
+          } else {
+            return done(null, false, { message: "Invalid password" });
+          }
+        })
+        .catch(() => {
+          return done(null, false, { message: "Voter does not exist" });
+        });
+    }
+  )
+);
+
 passport.serializeUser((user, done) => {
   console.log("Serialising user in session", user.id);
   done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
-  Admin.findByPk(id)
-    .then((user) => {
-      done(null, user);
-    })
-    .catch((error) => {
-      done(error, null);
-    });
+  //I(virus47) am serializing only id because Admin and Voter table have different entries
+  done(null, { id: id });
 });
 
 app.use(function (request, response, next) {
@@ -150,6 +172,7 @@ app.post("/admin", async (request, response) => {
 app.get("/login", (request, response) => {
   response.render("login", {
     title: "Login",
+    formAction: "/session",
     csrfToken: request.csrfToken(),
   });
 });
@@ -165,16 +188,36 @@ app.post(
   }
 );
 
+app.get("/voterLogin", (request, response) => {
+  response.render("login", {
+    title: "Login",
+    formAction: "/voterSession",
+    csrfToken: request.csrfToken(),
+  });
+});
+
+app.post(
+  "/voterSession",
+  passport.authenticate("VoterAuthenticate", {
+    failureRedirect: "/voterLogin",
+    failureFlash: true,
+  }),
+  function (request, response) {
+    response.redirect("/resultsss");
+  }
+);
+
 app.get(
   "/elections",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    const loggedInUser = request.user.id;
-    const allElections = await Election.getElections(loggedInUser);
+    const loggedInUserId = request.user.id;
+    const admin = await Admin.findByPk(loggedInUserId);
+    const allElections = await Election.getElections(loggedInUserId);
     if (request.accepts("html")) {
       response.render("electionsAdminHome", {
         title: "Voting Application",
-        firstName: request.user.firstName,
+        firstName: admin.firstName,
         allElections,
         csrfToken: request.csrfToken(),
       });
@@ -547,41 +590,45 @@ app.delete(
   }
 );
 
-app.get("/vote/election/:id", async (request, response) => {
-  const electionId = request.params.id;
-  const election = await Election.findByPk(request.params.id);
-  const questions = await Question.getQuestions(electionId);
-  let options = new Array(questions.length);
-  for (let i = 0; i < questions.length; i++) {
-    options[i] = await Option.getOptions(questions[i].id);
+app.get(
+  "/vote/election/:id",
+  connectEnsureLogin.ensureLoggedIn({ setReturnTo: false }),
+  async (request, response, next) => {
+    const electionId = request.params.id;
+    const election = await Election.findByPk(request.params.id);
+    const questions = await Question.getQuestions(electionId);
+    let options = new Array(questions.length);
+    for (let i = 0; i < questions.length; i++) {
+      options[i] = await Option.getOptions(questions[i].id);
+    }
+    if (election.started == true && election.ended == false) {
+      response.render("castVote", {
+        electionId,
+        questions,
+        options,
+        message: "The questions will appear here",
+        csrfToken: request.csrfToken(),
+      });
+    } else if (election.started == false) {
+      response.render("result", {
+        message: "Election has not yet started",
+        csrfToken: request.csrfToken(),
+      });
+    } else {
+      response.render("result", {
+        message:
+          "Election has ended. Results will appear here but the page is not ready. Come back soon",
+        csrfToken: request.csrfToken(),
+      });
+    }
   }
-  if (election.started == true && election.ended == false) {
-    response.render("castVote", {
-      electionId,
-      questions,
-      options,
-      message: "The questions will appear here",
-      csrfToken: request.csrfToken(),
-    });
-  } else if (election.started == false) {
-    response.render("result", {
-      message: "Election has not yet started",
-      csrfToken: request.csrfToken(),
-    });
-  } else {
-    response.render("result", {
-      message:
-        "Election has ended. Results will appear here but the page is not ready. Come back soon",
-      csrfToken: request.csrfToken(),
-    });
-  }
-});
+);
 
 app.post(
   "/addVote",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    console.log(request.user.id, request.user.email);
+    console.log(request.user.id);
     const electionId = request.body.electionId;
     const questions = await Question.getQuestions(electionId);
     for (let i = 0; i < questions.length; i++) {
@@ -589,5 +636,13 @@ app.post(
     }
   }
 );
+
+app.get("/resultsss", async (request, response) => {
+  console.log(request.user);
+  response.render("result", {
+    message: "Hello",
+    csrfToken: request.csrfToken(),
+  });
+});
 
 module.exports = app;
