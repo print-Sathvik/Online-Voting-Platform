@@ -105,7 +105,7 @@ passport.serializeUser((user, done) => {
   } else {
     user.dataValues.userType = "admin";
   }
-  console.log("Serialising user in session", user);
+  console.log("Serialising user in session", user.id, user.userType);
   done(null, user);
 });
 
@@ -208,7 +208,8 @@ app.post(
     failureFlash: true,
   }),
   function (request, response) {
-    response.redirect("/resultsss");
+    console.log("+++++++++++++++++++++++", global.globalElectionId);
+    response.redirect(`vote/${global.globalElectionId}`);
   }
 );
 
@@ -595,9 +596,19 @@ app.delete(
   }
 );
 
+//Storing electonId in session so that voter can be redirected to that election page after login
+app.get("/vote/election/:id", async (request, response) => {
+  global.globalElectionId = request.params.id;
+  console.log("---------------------", global.globalElectionId);
+  response.redirect(`/vote/${request.params.id}`);
+});
+
 app.get(
-  "/vote/election/:id",
-  connectEnsureLogin.ensureLoggedIn({ setReturnTo: false }),
+  "/vote/:id",
+  connectEnsureLogin.ensureLoggedIn({
+    redirectTo: "/voterLogin",
+    setReturnTo: true,
+  }),
   async (request, response, next) => {
     const electionId = request.params.id;
     const election = await Election.findByPk(request.params.id);
@@ -643,7 +654,7 @@ app.post(
 );
 
 app.get("/resultsss", async (request, response) => {
-  console.log(request.user.email, request.user.voterId, request.user.userType);
+  console.log(request.session);
   response.render("result", {
     message: "Hello",
     csrfToken: request.csrfToken(),
