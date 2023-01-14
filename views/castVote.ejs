@@ -31,6 +31,11 @@
             <form method="post" action="/addVote">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="electionId" value="<%= electionId %>">
+                <% if(messages && messages.error && messages.error.length > 0)  { %>
+                    <% for(var i=0; i<messages.error.length; i++) { %>
+                            <li> <%= messages.error[i] %></li>
+                    <% } %>
+                  <% } %>
                 <div>
                     <% for(var i=0; i < questions.length; i++) { %>
                         <div class="py-2">

@@ -218,12 +218,16 @@ app.get(
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     const loggedInUserId = request.user.id;
-    const admin = await Admin.findByPk(loggedInUserId);
+    const loggedInUser = await Admin.findByPk(loggedInUserId);
     const allElections = await Election.getElections(loggedInUserId);
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     if (request.accepts("html")) {
       response.render("electionsAdminHome", {
         title: "Voting Application",
-        firstName: admin.firstName,
+        firstName: loggedInUser.firstName,
         allElections,
         csrfToken: request.csrfToken(),
       });
@@ -239,6 +243,10 @@ app.post(
   "/elections",
   connectEnsureLogin.ensureLoggedIn(),
   async function (request, response) {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     if (request.body.title.trim().length === 0) {
       request.flash("error", "Title cannot be empty");
       return response.redirect("/elections");
@@ -275,6 +283,10 @@ app.delete(
   "/elections/:id",
   connectEnsureLogin.ensureLoggedIn(),
   async function (request, response) {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     try {
       console.log(request.body);
       await Election.remove(request.params.id, request.user.id); //Added user id to check who is deleting
@@ -290,6 +302,10 @@ app.put(
   "/elections/manage/:id/changeStatus",
   connectEnsureLogin.ensureLoggedIn(),
   async function (request, response) {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const election = await Election.findByPk(request.params.id);
     try {
       const updatedElection = await election.changeStatus(
@@ -310,6 +326,10 @@ app.get(
   "/elections/manage/:id",
   connectEnsureLogin.ensureLoggedIn(),
   async function (request, response) {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const election = await Election.findByPk(request.params.id);
     response.render("manageElection", {
       title: "Manage",
@@ -324,6 +344,10 @@ app.get(
   "/elections/manage/:id/preview",
   connectEnsureLogin.ensureLoggedIn(),
   async function (request, response) {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const electionId = request.params.id;
     const questions = await Question.getQuestions(electionId);
     let options = new Array(questions.length);
@@ -343,6 +367,10 @@ app.get(
   "/elections/manage/:id/manageVoters",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const electionId = request.params.id;
     const voterTableIds = await ElectionVoter.getVoters(electionId);
     const allVoters = await Voter.getVoters(voterTableIds);
@@ -359,6 +387,10 @@ app.post(
   "/addVoter",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
     try {
       const user = await Voter.create({
@@ -389,6 +421,10 @@ app.get(
   "/elections/manage/:id/newQuestion",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const electionId = request.params.id;
     const questions = await Question.getQuestions(electionId);
     let options = new Array(questions.length);
@@ -408,6 +444,10 @@ app.post(
   "/addQuestion",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const option1 = request.body.option1;
     const option2 = request.body.option2;
     if (option1.trim().length === 0 || option2.trim().length === 0) {
@@ -464,6 +504,10 @@ app.get(
   "/elections/manage/:id/manageQuestions",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const electionId = request.params.id;
     const election = await Election.findByPk(request.params.id);
     try {
@@ -493,6 +537,10 @@ app.get(
   "/questions/manage/:questionid/editQuestion",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const questionId = request.params.questionid;
     const question = await Question.findByPk(questionId);
     const options = await Option.getOptions(questionId);
@@ -508,6 +556,10 @@ app.post(
   "/updateQuestion",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     try {
       await Question.update(
         {
@@ -564,6 +616,10 @@ app.post(
   "/questions/manage/:id/launch",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     const election = await Election.findByPk(request.params.id);
     try {
       const updatedElection = await election.changeStatus(
@@ -583,6 +639,10 @@ app.delete(
   "/questions/manage/:questionId",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
     await Option.remove(request.params.questionId);
     //Deleting the options for the deleted question
 
@@ -610,6 +670,10 @@ app.get(
     setReturnTo: true,
   }),
   async (request, response, next) => {
+    if (request.user.userType == "admin") {
+      request.flash("error", "Admin cannot access voter page");
+      return response.redirect("/elections");
+    }
     const electionId = request.params.id;
     const election = await Election.findByPk(request.params.id);
     const questions = await Question.getQuestions(electionId);
@@ -653,12 +717,16 @@ app.post(
   }
 );
 
-app.get("/resultsss", async (request, response) => {
-  console.log(request.session);
-  response.render("result", {
-    message: "Hello",
-    csrfToken: request.csrfToken(),
-  });
-});
+app.get(
+  "/resultsss",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log(request.session);
+    response.render("result", {
+      message: "Hello",
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
 
 module.exports = app;
