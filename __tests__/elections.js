@@ -25,9 +25,13 @@ const login = async (agent, username, password) => {
 
 describe("Online Voting", function () {
   beforeAll(async () => {
-    await db.sequelize.sync({ force: true });
-    server = app.listen(3000, () => {});
-    agent = request.agent(server);
+    try {
+      await db.sequelize.sync({ force: true });
+      server = app.listen(3052, () => {});
+      agent = request.agent(server);
+    } catch (er) {
+      console.log("******************************************", er);
+    }
   });
 
   afterAll(async () => {
@@ -35,14 +39,17 @@ describe("Online Voting", function () {
       await db.sequelize.close();
       await server.close();
     } catch (error) {
-      console.log(error);
+      console.log(
+        "::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+        error
+      );
     }
   });
 
   test("Sign up", async () => {
     let res = await agent.get("/signup");
     const csrfToken = extractCsrfToken(res);
-    res = await agent.post("/users").send({
+    res = await agent.post("/admin").send({
       firstName: "Test First Name",
       lastName: "Test Last Name",
       email: "testuser@testmail.com",

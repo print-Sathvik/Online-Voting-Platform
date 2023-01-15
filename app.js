@@ -682,10 +682,32 @@ app.delete(
   }
 );
 
-//Storing electonId in session so that voter can be redirected to that election page after login
 app.get("/vote/election/:id", async (request, response) => {
   global.globalElectionId = request.params.id;
-  response.redirect(`/vote/${request.params.id}`);
+  const election = await Election.findByPk(request.params.id);
+  if (election.started == true && election.ended == true) {
+    const electionId = request.params.id;
+    const election = await Election.findByPk(electionId);
+    const questions = await Question.getQuestions(electionId);
+    let options = new Array(questions.length);
+    let optionsCount = new Array(questions.length);
+    for (let i = 0; i < questions.length; i++) {
+      options[i] = await Option.getOptions(questions[i].id);
+      optionsCount[i] = await Response.getOptionsCount(
+        questions[i].id,
+        options[i]
+      );
+    }
+    response.render("result", {
+      questions,
+      options,
+      optionsCount,
+      message: `Results of election ${election.title}`,
+      csrfToken: request.csrfToken(),
+    });
+  } else {
+    response.redirect(`/vote/${request.params.id}`);
+  }
 });
 
 app.get(
@@ -700,7 +722,7 @@ app.get(
       return response.redirect("/elections");
     }
     const electionId = request.params.id;
-    const election = await Election.findByPk(request.params.id);
+    const election = await Election.findByPk(electionId);
     const questions = await Question.getQuestions(electionId);
     let options = new Array(questions.length);
     for (let i = 0; i < questions.length; i++) {
@@ -727,9 +749,25 @@ app.get(
         csrfToken: request.csrfToken(),
       });
     } else {
+      let optionsCount = new Array(questions.length);
+      for (let i = 0; i < questions.length; i++) {
+        optionsCount[i] = new Array();
+        for (let j = 0; j < options[i].length; j++) {
+          optionsCount[i].push(
+            await Response.count({
+              where: {
+                questionId: questions[i].id,
+                optionId: options[i].id,
+              },
+            })
+          );
+        }
+      }
       response.render("result", {
-        message:
-          "Election has ended. Results will appear here but the page is not ready. Come back soon",
+        questions,
+        options,
+        optionsCount,
+        message: `Results of election ${election.title}`,
         csrfToken: request.csrfToken(),
       });
     }

@@ -6,10 +6,6 @@ module.exports = (sequelize, DataTypes) => {
       Voter.hasOne(models.ElectionVoter, {
         foreignKey: "voterId",
       });
-
-      Voter.hasMany(models.Response, {
-        foreignKey: "voterId",
-      });
     }
 
     static async getVoters(voterTableIds) {

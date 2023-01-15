@@ -2,11 +2,7 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Response extends Model {
-    static associate(models) {
-      Response.hasMany(models.Voter, {
-        foreignKey: "voterId",
-      });
-    }
+    static associate(models) {}
 
     static async isResponded(questionId, voterId) {
       const anyResponse = await Response.findOne({
@@ -21,6 +17,19 @@ module.exports = (sequelize, DataTypes) => {
       } else {
         return false;
       }
+    }
+
+    static async getOptionsCount(questionId, options) {
+      let optionCount = new Array(options.length);
+      for (let i = 0; i < options.length; i++) {
+        optionCount[i] = await Response.count({
+          where: {
+            questionId: BigInt(questionId),
+            optionId: BigInt(options[i].id),
+          },
+        });
+      }
+      return optionCount;
     }
   }
   Response.init(
