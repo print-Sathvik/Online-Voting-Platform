@@ -38,3 +38,18 @@ body {
 .centerElement {
   text-align: center;
 }
+
+radiobutton {
+  appearance: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgb(104, 103, 103);
+  transition: 0.3s all linear;
+  position: relative;
+  margin-left: 30px;
+}
+
+radiobutton:checked {
+  border: 6px solid black;
+}

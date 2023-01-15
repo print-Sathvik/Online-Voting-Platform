@@ -12,8 +12,10 @@
 
 <body>
     <%- include('header.ejs') %>
-    <h1 class="text-4xl"><%= message %></h1>
-    <% try { %>
+    <h1 class="text-4xl centerElement"><%= message %></h1>
+    <h1 class="text-2xl centerElement">Total Voters: <%= totalVoters %></h1>
+    <h1 class="text-2xl centerElement">No of voters polled: <%= voted %></h1>
+    <h1 class="text-2xl centerElement">Voters remaining: <%= totalVoters - voted %></h1>
     <div class="grid grid-cols-6">
         <div class="col-start-2 col-span-3">
             <br>
@@ -49,5 +51,4 @@
             </div>
         </div>
     </div>
-    <% } catch {} %>
 </body>

@@ -19,9 +19,17 @@
                 <% if(allElections[i].started == false) { %>
                     <a href="/elections/manage/<%= allElections[i].id %>/preview"><button class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Start</button></a>
                 <% } else if(allElections[i].ended == false) { %>
+                    <br>
+                    <a href="/election/<%= allElections[i].id %>/status" class="text-green-600">
+                        Status
+                    </a>
                     <button onclick= "changeStatus(<%= allElections[i].id %>)" class="bg-red-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">End</button>
+                <% } else { %>
+                    <br>
+                    <a href="/election/<%= allElections[i].id %>/status" class="text-green-600">
+                        Status
+                    </a>
                 <% } %>
-                
             </td>
         </tr>
 <% } %>

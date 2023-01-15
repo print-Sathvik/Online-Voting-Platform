@@ -305,6 +305,36 @@ app.get("/signout", (request, response, next) => {
   });
 });
 
+app.get(
+  "/election/:id/status",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const electionId = request.params.id;
+    const election = await Election.findByPk(electionId);
+    const questions = await Question.getQuestions(electionId);
+    const totalVoters = await ElectionVoter.count({ where: { electionId } });
+    const voted = await Response.votedCount(questions[0].id);
+    let options = new Array(questions.length);
+    let optionsCount = new Array(questions.length);
+    for (let i = 0; i < questions.length; i++) {
+      options[i] = await Option.getOptions(questions[i].id);
+      optionsCount[i] = await Response.getOptionsCount(
+        questions[i].id,
+        options[i]
+      );
+    }
+    response.render("progress", {
+      questions,
+      options,
+      optionsCount,
+      totalVoters,
+      voted,
+      message: `Progress of ${election.title}`,
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
+
 app.delete(
   "/elections/:id",
   connectEnsureLogin.ensureLoggedIn(),
@@ -746,28 +776,6 @@ app.get(
     } else if (election.started == false) {
       response.render("result", {
         message: "Election has not yet started",
-        csrfToken: request.csrfToken(),
-      });
-    } else {
-      let optionsCount = new Array(questions.length);
-      for (let i = 0; i < questions.length; i++) {
-        optionsCount[i] = new Array();
-        for (let j = 0; j < options[i].length; j++) {
-          optionsCount[i].push(
-            await Response.count({
-              where: {
-                questionId: questions[i].id,
-                optionId: options[i].id,
-              },
-            })
-          );
-        }
-      }
-      response.render("result", {
-        questions,
-        options,
-        optionsCount,
-        message: `Results of election ${election.title}`,
         csrfToken: request.csrfToken(),
       });
     }

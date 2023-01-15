@@ -8,6 +8,23 @@
     <link href="/css/styles.css" rel="stylesheet">
     <title>Online Voting Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        input {
+        appearance: none;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgb(104, 103, 103);
+        transition: 0.3s all linear;
+        position: relative;
+        margin-left: 30px;
+        margin-top: 4px;
+        }
+
+        input:checked {
+        border: 6px solid black;
+        }
+    </style>
     <script>
         var token = document.querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
@@ -22,7 +39,6 @@
             }).catch((err) => console.error(err));
         }
     </script>
-
 </head>
 <body>
     <%- include('header.ejs') %>
@@ -45,7 +61,7 @@
                                 if(options[j].length != 0 && options[j][0].questionId == questions[i].id) { %>
                                     <% for(var k=0; k < options[j].length; k++) { %>
                                         <input type="radio" id="<%= `q${questions[i].id}o${options[j][k].id}` %>" name="<%= `option${i+1}` %>" 
-                                        value="<%= options[j][k].id %>" class="default:border-green-500" style="margin-left: 30px" required>
+                                        value="<%= options[j][k].id %>" class="radiobutton" required>
                                         <label for="<%= `q${questions[i].id}o${options[j][k].id}` %>" class="text-xl"><%= options[j][k].option %></label>
                                         <br>
                                     <% } %>

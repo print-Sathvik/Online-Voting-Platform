@@ -1,10 +1,5 @@
-# Update 1:
-
-Added basic menu bar and Added styles to dynamic text fields in editQuestion page, so the input text fields are now visible
-
-# Update 2:
-
-Voter is authenticated and redirected to the election page. Voting and checking if the voter is eligible for this election are not yet implemented. Voter's vote can be seen in console only for now, not in the database.
+# Update 4:
+Completed all the required features. Tests and optional features are not remaining.
 
 # Online-Voting-Platform
 

@@ -31,6 +31,14 @@ module.exports = (sequelize, DataTypes) => {
       }
       return optionCount;
     }
+
+    static async votedCount(questionId) {
+      return await Response.count({
+        where: {
+          questionId,
+        },
+      });
+    }
   }
   Response.init(
     {
