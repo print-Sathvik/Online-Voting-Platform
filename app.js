@@ -87,7 +87,17 @@ passport.use(
         .then(async function (user) {
           const result = await bcrypt.compare(password, user.password);
           if (result) {
-            return done(null, user);
+            const isVoterEligible = await ElectionVoter.getVoter(
+              global.globalElectionId,
+              user.id
+            );
+            if (isVoterEligible) {
+              return done(null, user);
+            } else {
+              return done(null, false, {
+                message: "This voter is not eligible for this election",
+              });
+            }
           } else {
             return done(null, false, { message: "Invalid password" });
           }
@@ -105,12 +115,12 @@ passport.serializeUser((user, done) => {
   } else {
     user.dataValues.userType = "admin";
   }
-  console.log("Serialising user in session", user.id, user.userType);
+  console.log("Serialising user in session", user);
   done(null, user);
 });
 
 passport.deserializeUser((user, done) => {
-  //I(virus47) am serializing user because Admin and Voter table have different entries
+  //I am serializing user instead of userId because Admin and Voter table have different entries
   done(null, user);
 });
 
@@ -119,19 +129,27 @@ app.use(function (request, response, next) {
   next();
 });
 
-app.get("/", async (request, response) => {
-  response.render("index", {
-    title: "Voting Application",
-    csrfToken: request.csrfToken(),
-  });
-});
+app.get(
+  "/",
+  connectEnsureLogin.ensureLoggedOut({ redirectTo: "/elections" }),
+  async (request, response) => {
+    response.render("index", {
+      title: "Voting Application",
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
 
-app.get("/signup", async (request, response) => {
-  response.render("signup", {
-    title: "Signup",
-    csrfToken: request.csrfToken(),
-  });
-});
+app.get(
+  "/signup",
+  connectEnsureLogin.ensureLoggedOut({ redirectTo: "/elections" }),
+  async (request, response) => {
+    response.render("signup", {
+      title: "Signup",
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
 
 app.post("/admin", async (request, response) => {
   if (request.body.firstName.trim().length === 0) {
@@ -174,13 +192,17 @@ app.post("/admin", async (request, response) => {
   }
 });
 
-app.get("/login", (request, response) => {
-  response.render("login", {
-    title: "Login",
-    formAction: "/session",
-    csrfToken: request.csrfToken(),
-  });
-});
+app.get(
+  "/login",
+  connectEnsureLogin.ensureLoggedOut({ redirectTo: "/elections" }),
+  (request, response) => {
+    response.render("login", {
+      title: "Login",
+      formAction: "/session",
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
 
 app.post(
   "/session",
@@ -193,13 +215,17 @@ app.post(
   }
 );
 
-app.get("/voterLogin", (request, response) => {
-  response.render("login", {
-    title: "Login",
-    formAction: "/voterSession",
-    csrfToken: request.csrfToken(),
-  });
-});
+app.get(
+  "/voterLogin",
+  connectEnsureLogin.ensureLoggedOut(),
+  (request, response) => {
+    response.render("login", {
+      title: "Login",
+      formAction: "/voterSession",
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
 
 app.post(
   "/voterSession",
@@ -659,7 +685,6 @@ app.delete(
 //Storing electonId in session so that voter can be redirected to that election page after login
 app.get("/vote/election/:id", async (request, response) => {
   global.globalElectionId = request.params.id;
-  console.log("---------------------", global.globalElectionId);
   response.redirect(`/vote/${request.params.id}`);
 });
 
@@ -682,13 +707,20 @@ app.get(
       options[i] = await Option.getOptions(questions[i].id);
     }
     if (election.started == true && election.ended == false) {
-      response.render("castVote", {
-        electionId,
-        questions,
-        options,
-        message: "The questions will appear here",
-        csrfToken: request.csrfToken(),
-      });
+      if (await Response.isResponded(questions[0].id, request.user.id)) {
+        response.render("result", {
+          message: "You have already voted. Please wait for the result",
+          csrfToken: request.csrfToken(),
+        });
+      } else {
+        response.render("castVote", {
+          electionId,
+          questions,
+          options,
+          message: "The questions will appear here",
+          csrfToken: request.csrfToken(),
+        });
+      }
     } else if (election.started == false) {
       response.render("result", {
         message: "Election has not yet started",
@@ -708,24 +740,20 @@ app.post(
   "/addVote",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    console.log(request.user.id);
+    if (request.user.userType == "admin") {
+      request.flash("error", "Admin cannot access voter page");
+      return response.redirect("/elections");
+    }
     const electionId = request.body.electionId;
     const questions = await Question.getQuestions(electionId);
     for (let i = 0; i < questions.length; i++) {
-      console.log(questions[i].id, eval(`request.body.option${i + 1}`));
+      await Response.create({
+        questionId: questions[i].id,
+        voterId: request.user.id,
+        optionId: eval(`request.body.option${i + 1}`),
+      });
     }
-  }
-);
-
-app.get(
-  "/resultsss",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    console.log(request.session);
-    response.render("result", {
-      message: "Hello",
-      csrfToken: request.csrfToken(),
-    });
+    response.redirect(`/vote/${electionId}`);
   }
 );
 

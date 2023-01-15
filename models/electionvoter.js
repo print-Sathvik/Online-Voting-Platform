@@ -26,6 +26,16 @@ module.exports = (sequelize, DataTypes) => {
       });
       return votersList;
     }
+
+    static async getVoter(electionId, voterId) {
+      const voter = await ElectionVoter.findOne({
+        where: {
+          electionId,
+          voterId,
+        },
+      });
+      return voter;
+    }
   }
   ElectionVoter.init(
     {

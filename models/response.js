@@ -7,6 +7,21 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "voterId",
       });
     }
+
+    static async isResponded(questionId, voterId) {
+      const anyResponse = await Response.findOne({
+        where: {
+          questionId,
+          voterId,
+        },
+      });
+      console.log(anyResponse);
+      if (anyResponse != null) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
   Response.init(
     {

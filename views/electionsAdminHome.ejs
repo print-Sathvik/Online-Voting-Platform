@@ -49,9 +49,9 @@
     <%- include('header.ejs') %>
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-2">
-            <h3>Welcome <%= firstName %></h3>
+            <h3 class="text-xl centerElement py-1">Welcome <%= firstName %></h3>
             <form action="/elections" method="post">
-                <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% if(messages && messages.error && messages.error.length > 0) { %>
                     <% for(var i=0; i<messages.error.length; i++) { %>
                             <li> <%= messages.error[i] %></li>
                     <% } %>
@@ -62,7 +62,7 @@
                         <input type="text" name="title" placeholder="New Election Name?" class="border border-gray-300 rounded text-gray-900 w-full p-2 text-base"/>
                     </div>
                     <div class="flex-none">
-                        <button type="submit" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Create</button>
+                        <button type="submit" class="bg-green-600 text-white px-5 py-2 rounded font-medium mr-2 mb-2">Create</button>
                     </div>
                 </div>
             </form>
