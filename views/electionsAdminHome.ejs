@@ -48,7 +48,7 @@
 <body>
     <%- include('header.ejs') %>
     <div class="grid grid-cols-6">
-        <div class="col-start-3 col-span-2">
+        <div class="col-start-2 col-span-4">
             <h3 class="text-xl centerElement py-1">Welcome <%= firstName %></h3>
             <form action="/elections" method="post">
                 <% if(messages && messages.error && messages.error.length > 0) { %>
@@ -57,13 +57,15 @@
                     <% } %>
                   <% } %>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <div class="flex justify-center">
                 <div class="flex gap-2 py-4">
-                    <div class="flex-auto">
-                        <input type="text" name="title" placeholder="New Election Name?" class="border border-gray-300 rounded text-gray-900 w-full p-2 text-base"/>
+                    <div>
+                        <input type="text" name="title" placeholder="New Election Name?" class="border border-gray-300 rounded text-gray-900 w-half p-2 text-base"/>
                     </div>
                     <div class="flex-none">
                         <button type="submit" class="bg-green-600 text-white px-5 py-2 rounded font-medium mr-2 mb-2">Create</button>
                     </div>
+                </div>
                 </div>
             </form>
             <div>

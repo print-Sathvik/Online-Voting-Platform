@@ -53,3 +53,7 @@ radiobutton {
 radiobutton:checked {
   border: 6px solid black;
 }
+
+th, td {
+  padding-right: 15px;
+}

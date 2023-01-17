@@ -8,19 +8,24 @@
     <link href="/css/styles.css" rel="stylesheet">
     <title>Online Voting Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 </head>
 
 <body>
     <%- include('header.ejs') %>
+    <% let optionsGraph = [];
+    let optionsCountGraph = []; %>
     <h1 class="text-4xl centerElement"><%= message %></h1>
     <h1 class="text-2xl centerElement">Total Voters: <%= totalVoters %></h1>
     <h1 class="text-2xl centerElement">No of voters polled: <%= voted %></h1>
     <h1 class="text-2xl centerElement">Voters remaining: <%= totalVoters - voted %></h1>
     <div class="grid grid-cols-6">
-        <div class="col-start-2 col-span-3">
+        <div class="col-start-2 col-span-4">
             <br>
             <div>
-                <% for(var i=0; i < questions.length; i++) { %>
+                <% for(var i=0; i < questions.length; i++) { 
+                    optionsGraph = [];
+                    optionsCountGraph = []; %>
                     <% if(messages && messages.success && messages.success.length > 0)  { %>
                         <% for(var i=0; i<messages.success.length; i++) { %>
                                 <li> <%= messages.success[i] %></li>
@@ -41,11 +46,41 @@
                                         <td><input type="radio" disabled id="<%= `q${questions[i].id}o${options[j][k].id}` %>" name="<%= `q${questions[i].id}` %>" class="default:border-green-500" style="margin-left: 30px">
                                         <label for="<%= `q${questions[i].id}o${options[j][k].id}` %>" class="text-xl"><%= options[j][k].option %></label></td>
                                         <td class="text-xl px-8"><%= optionsCount[j][k] %></td>
+                                        <% optionsGraph.push(options[j][k].option);
+                                        optionsCountGraph.push(optionsCount[j][k]); %>
                                     </tr>
                                 <% } %>
                             <% } %>
                         <% } %>
                         </table>
+                        <canvas id="myChart<%= i %>" style="max-width:300px" class="inline"></canvas>
+                        <script>
+                            var xValues = "<%= optionsGraph %>".split(",");
+                            var yValues = "<%= optionsCountGraph %>".split(",").map(function(str) { return parseInt(str); });
+                           <% console.log("=============================",optionsGraph, optionsCountGraph) %>;
+                            var barColors = ["red", "green","blue","orange","brown","pink","cyan","yellow","magenta"];
+                            new Chart("myChart<%= i %>", {
+                                type: "bar",
+                                data: {
+                                    labels: xValues,
+                                    datasets: [{
+                                    backgroundColor: barColors,
+                                    data: yValues
+                                    }]
+                                },
+                                options: {
+                                    legend: {display: false},
+                                    scales: {
+                                        yAxis: {
+                                                ticks: {
+                                                    precision: 0
+                                                }
+                                            }
+                                    }
+                                }
+                            });
+                        </script>
+                        <br>
                     </div>
                 <% } %>
             </div>
