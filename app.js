@@ -457,9 +457,13 @@ app.post(
         electionId: request.body.electionId,
         voterId: user.id,
       });
-      return response.redirect(
-        `/elections/manage/${request.body.electionId}/manageVoters`
-      );
+      if (request.accepts("html")) {
+        return response.redirect(
+          `/elections/manage/${request.body.electionId}/manageVoters`
+        );
+      } else {
+        return response.json(user);
+      }
     } catch (error) {
       console.log(error);
       request.flash(
