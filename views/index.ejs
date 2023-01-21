@@ -13,6 +13,11 @@
     <%- include('header.ejs') %>
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-2 text-lg">
+            <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                        <li> <%= messages.error[i] %></li>
+                <% } %>
+            <% } %>
             <p class="py-2">Welcome to the Election Manager</p>
             <p class="py-2">New here? Do you hold elections?<a href="/signup" class="text-green-600">Sign-up now</a></p>
             <p class="py-2">Already have an account? <a href="/login" class="text-green-600">Sign-in</a></p>

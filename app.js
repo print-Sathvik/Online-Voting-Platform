@@ -10,6 +10,7 @@ const {
   Question,
   Option,
   Response,
+  Url,
 } = require("./models");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
@@ -391,6 +392,9 @@ app.get(
       title: "Manage",
       electionTitle: election.title,
       electionId: request.params.id,
+      customURL: await Url.findOne({
+        where: { electionId: request.params.id },
+      }),
       csrfToken: request.csrfToken(),
     });
   }
@@ -716,31 +720,81 @@ app.delete(
   }
 );
 
-app.get("/vote/election/:id", async (request, response) => {
-  global.globalElectionId = request.params.id;
-  const election = await Election.findByPk(request.params.id);
-  if (election.started == true && election.ended == true) {
-    const electionId = request.params.id;
-    const election = await Election.findByPk(electionId);
-    const questions = await Question.getQuestions(electionId);
-    let options = new Array(questions.length);
-    let optionsCount = new Array(questions.length);
-    for (let i = 0; i < questions.length; i++) {
-      options[i] = await Option.getOptions(questions[i].id);
-      optionsCount[i] = await Response.getOptionsCount(
-        questions[i].id,
-        options[i]
-      );
+app.post(
+  "/addCustomURL",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const electionId = request.body.electionId;
+    const url = request.body.customURL;
+    console.log("------------", url, electionId);
+    try {
+      const isnum = /^\d+$/.test(url);
+      if (isnum) {
+        throw "Custom URL connot be entirely of numbers. Add other characters also";
+      }
+      if (url.indexOf(" ") >= 0) {
+        throw "White spaces should not be there";
+      }
+      const newurl = await Url.create({
+        electionId: electionId,
+        customURL: url,
+      });
+      response.redirect(`/elections/manage/${electionId}`);
+    } catch (error) {
+      console.log(error);
+      request.flash("error", error);
+      response.redirect(`/elections/manage/${electionId}`);
     }
-    response.render("result", {
-      questions,
-      options,
-      optionsCount,
-      message: `Results of election ${election.title}`,
-      csrfToken: request.csrfToken(),
-    });
-  } else {
-    response.redirect(`/vote/${request.params.id}`);
+  }
+);
+
+app.get("/vote/election/:id", async (request, response) => {
+  const isnum = /^\d+$/.test(request.params.id);
+  try {
+    let election, electionId;
+    if (isnum) {
+      election = await Election.findByPk(request.params.id);
+      electionId = request.params.id;
+      if (election == null) {
+        throw "No election with such URL";
+      }
+    } else {
+      const customURL = request.params.id;
+      const url = await Url.findOne({ where: { customURL: customURL } });
+      if (url == null) {
+        throw "No election with such URL";
+      }
+      electionId = url.electionId;
+      election = await Election.findByPk(electionId);
+    }
+    global.globalElectionId = electionId;
+
+    if (election.started == true && election.ended == true) {
+      const election = await Election.findByPk(electionId);
+      const questions = await Question.getQuestions(electionId);
+      let options = new Array(questions.length);
+      let optionsCount = new Array(questions.length);
+      for (let i = 0; i < questions.length; i++) {
+        options[i] = await Option.getOptions(questions[i].id);
+        optionsCount[i] = await Response.getOptionsCount(
+          questions[i].id,
+          options[i]
+        );
+      }
+      response.render("result", {
+        questions,
+        options,
+        optionsCount,
+        message: `Results of election ${election.title}`,
+        csrfToken: request.csrfToken(),
+      });
+    } else {
+      response.redirect(`/vote/${electionId}`);
+    }
+  } catch (error) {
+    console.log(error);
+    request.flash("error", error);
+    response.redirect("/");
   }
 });
 

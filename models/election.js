@@ -2,11 +2,6 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Election extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       // define association here
       Election.belongsTo(models.Admin, {
@@ -25,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     static async addElection({ title, started, ended, adminId }) {
       return await Election.create({
         title: title,
-        started: false,
-        ended: false,
+        started: started,
+        ended: ended,
         adminId,
       });
     }
@@ -60,6 +55,19 @@ module.exports = (sequelize, DataTypes) => {
           adminId,
         },
       });
+    }
+
+    static async addCustomURL(electionId, url) {
+      const res = await Election.update(
+        { customURL: url },
+        {
+          where: {
+            id: electionId,
+          },
+        }
+      );
+      console.log(electionId, url, res);
+      return res;
     }
   }
   Election.init(

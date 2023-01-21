@@ -19,7 +19,21 @@
                         <li> <%= messages.error[i] %></li>
                 <% } %>
               <% } %>
-            <h3 class="text-lg py-2">Share this URL with the voters: <a class="text-green-600" href="/vote/election/<%= electionId %>">online-voting-sj3r.onrender.com/vote/election/<%= electionId %></a></h3> 
+            <h3 class="text-lg py-2">Share this URL with the voters: <a class="text-green-600" href="/vote/election/<%= electionId %>">online-voting-sj3r.onrender.com/vote/election/<%= electionId %></a></h3>
+            <h3 class="text-lg py-2 centerElement">Or</h3>
+            <% if(customURL == null) { %>
+                <form action="/addCustomURL" method="post">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="electionId" value="<%= electionId %>">
+                    <label for="customURL">Create Custom URL: <p class="text-small">online-voting-sj3r.onrender.com/vote/election/</p></label>
+                    <input type="text" name="customURL" class="border border-gray-300 rounded p-2 w-full inline" required>
+                    <div class="centerElement py-2">
+                        <button type="submit" class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2">Use this URL</button>
+                    </div>
+                </form>
+            <% } else { %>
+                <h3 class="text-lg py-2">Share this URL with the voters: <a class="text-green-600" href="/vote/election/<%= customURL.customURL %>">online-voting-sj3r.onrender.com/vote/election/<%= customURL.customURL %></a></h3>
+            <% } %>
             <div>
                 <p class="text-green-600 text-lg py-6"><a href="/elections/manage/<%= electionId %>/manageVoters">Manage Voters</a></p>
                 <p class="text-green-600 text-lg py-6"><a href="/elections/manage/<%= electionId %>/manageQuestions">Manage Questions</a></p>

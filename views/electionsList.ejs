@@ -1,10 +1,10 @@
-<table class="flex gap-2 py-4">
+<table class="flex gap-2">
     <% for(var i=0; i < allElections.length; i++) { %>
         <tr class="col-start-3 col-span-2 w-full">
-            <td style="width:5%" class="flex-auto">
+            <td style="width:5%" class="flex-auto py-4">
                 <%= i+1%>.
             </td>
-            <td style="width:70%" class="w-full">
+            <td style="width:70%" class="w-full py-4">
                 <label class="ml-2 text-xl text-black-600 cursor-pointer"><%= allElections[i].title%></label>
             </td>
                 <!--<a href="#" class="ml-2" onclick=`deleteElection(<%= allElections[i].id%>)`>
