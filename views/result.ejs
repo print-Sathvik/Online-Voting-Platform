@@ -20,13 +20,18 @@
     <div class="grid grid-cols-6">
         <div class="col-start-2 col-span-4">
             <br>
+            <div class="menuBackground2 justify-items-center">
+                <a class="menuitem2" href="/vote/<%= electionId %>/bar">Bar</a>
+                <a class="menuitem2" href="/vote/<%= electionId %>/pie">Pie</a>
+                <a class="menuitem2" href="/vote/<%= electionId %>/doughnut">Doughnut</a>
+            </div>
             <div>
                 <% for(var i=0; i < questions.length; i++) {
                     optionsGraph = [];
                     optionsCountGraph = []; %>
-                    <% if(messages && messages.success && messages.success.length > 0)  { %>
-                        <% for(var i=0; i<messages.success.length; i++) { %>
-                                <li> <%= messages.success[i] %></li>
+                    <% if(messages && messages.error && messages.error.length > 0)  { %>
+                        <% for(var i=0; i<messages.error.length; i++) { %>
+                                <p class="flash-error"> <%= messages.error[i] %></p>
                         <% } %>
                       <% } %>
                     <div class="py-2">
@@ -55,10 +60,9 @@
                         <script>
                             var xValues = "<%= optionsGraph %>".split(",");
                             var yValues = "<%= optionsCountGraph %>".split(",").map(function(str) { return parseInt(str); });
-                           <% console.log("=============================",optionsGraph, optionsCountGraph) %>;
                             var barColors = ["red", "green","blue","orange","brown","pink","cyan","yellow","magenta"];
                             new Chart("myChart<%= i %>", {
-                                type: "bar",
+                                type: "<%= chartType %>",
                                 data: {
                                     labels: xValues,
                                     datasets: [{
@@ -66,16 +70,18 @@
                                     data: yValues
                                     }]
                                 },
-                                options: {
-                                    legend: {display: false},
-                                    scales: {
-                                        yAxis: {
-                                                ticks: {
-                                                    precision: 0
+                                <% if(chartType == "bar") { %>
+                                    options: {
+                                        legend: {display: false},
+                                        scales: {
+                                            yAxis: {
+                                                    ticks: {
+                                                        precision: 0
+                                                    }
                                                 }
-                                            }
+                                        }
                                     }
-                                }
+                                <% } %>
                             });
                         </script>
                         <br>

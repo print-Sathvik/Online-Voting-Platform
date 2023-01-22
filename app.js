@@ -307,7 +307,7 @@ app.get("/signout", (request, response, next) => {
 });
 
 app.get(
-  "/election/:id/status",
+  "/election/:id/status/:chartType(bar|pie|doughnut)",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     const electionId = request.params.id;
@@ -330,6 +330,8 @@ app.get(
       optionsCount,
       totalVoters,
       voted,
+      electionId,
+      chartType: request.params.chartType || "bar",
       message: `Progress of ${election.title}`,
       csrfToken: request.csrfToken(),
     });
@@ -726,7 +728,6 @@ app.post(
   async (request, response) => {
     const electionId = request.body.electionId;
     const url = request.body.customURL;
-    console.log("------------", url, electionId);
     try {
       const isnum = /^\d+$/.test(url);
       if (isnum) {
@@ -770,6 +771,38 @@ app.get("/vote/election/:id", async (request, response) => {
     global.globalElectionId = electionId;
 
     if (election.started == true && election.ended == true) {
+      response.redirect(`/vote/${electionId}/bar`);
+    } else {
+      response.redirect(`/vote/${electionId}`);
+    }
+  } catch (error) {
+    console.log(error);
+    request.flash("error", error);
+    response.redirect("/");
+  }
+});
+
+app.get("/vote/:id/:chartType(bar|pie|doughnut)", async (request, response) => {
+  const isnum = /^\d+$/.test(request.params.id);
+  try {
+    let election, electionId;
+    if (isnum) {
+      election = await Election.findByPk(request.params.id);
+      electionId = request.params.id;
+      if (election == null) {
+        throw "No election with such URL";
+      }
+    } else {
+      const customURL = request.params.id;
+      const url = await Url.findOne({ where: { customURL: customURL } });
+      if (url == null) {
+        throw "No election with such URL";
+      }
+      electionId = url.electionId;
+      election = await Election.findByPk(electionId);
+    }
+
+    if (election.started == true && election.ended == true) {
       const election = await Election.findByPk(electionId);
       const questions = await Question.getQuestions(electionId);
       let options = new Array(questions.length);
@@ -785,11 +818,13 @@ app.get("/vote/election/:id", async (request, response) => {
         questions,
         options,
         optionsCount,
-        message: `Results of election ${election.title}`,
+        electionId,
+        chartType: request.params.chartType,
+        message: `Results of ${election.title}`,
         csrfToken: request.csrfToken(),
       });
     } else {
-      response.redirect(`/vote/${electionId}`);
+      throw "Election is not yet over";
     }
   } catch (error) {
     console.log(error);

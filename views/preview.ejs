@@ -46,10 +46,14 @@
                     </div>
                 <% } %>
             </div>
-            <form method="post" action="/questions/manage/<%= electionId %>/launch">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <button type="submit" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Launch Election</button>
-            </form>
+            <% if(questions.length == 0) { %>
+                <p class="flash-error">Cannot start an election without any question</p>
+            <% } else { %>
+                <form method="post" action="/questions/manage/<%= electionId %>/launch">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Launch Election</button>
+                </form>
+            <% } %>
         </div>
     </div>
 </body>

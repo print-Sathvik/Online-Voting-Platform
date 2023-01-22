@@ -39,9 +39,14 @@
         <div class="col-start-2 col-span-3">
             <% if(messages && messages.success && messages.success.length > 0)  { %>
                 <% for(var i=0; i<messages.success.length; i++) { %>
-                        <li> <%= messages.success[i] %></li>
+                        <p class="flash-success"> <%= messages.success[i] %></p>
                 <% } %>
-              <% } %>
+            <% } %>
+            <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                        <p class="flash-error"> <%= messages.error[i] %></p>
+                <% } %>
+            <% } %>
             <div>
                 <% for(var i=0; i < questions.length; i++) { %>
                     <div class="py-2">

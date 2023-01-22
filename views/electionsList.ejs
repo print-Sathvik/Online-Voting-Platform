@@ -31,13 +31,13 @@
                     <button onclick= "changeStatus(<%= allElections[i].id %>)" class="bg-red-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2 w-24">End</button>
                 </td>
                 <td class="flex-auto">
-                    <a href="/election/<%= allElections[i].id %>/status" class="text-green-600">
+                    <a href="/election/<%= allElections[i].id %>/status/bar" class="text-green-600">
                         Status
                     </a>
                 </td>
             <% } else { %>
                 <td class="flex-auto">
-                    <a href="/election/<%= allElections[i].id %>/status" class="text-green-600">
+                    <a href="/election/<%= allElections[i].id %>/status/bar" class="text-green-600">
                         Result
                     </a>
                 </td>

@@ -2,7 +2,7 @@ body {
   font-family: "Times New Roman", Times, serif;
 }
 
-.Todo-Item:hover .trash-icon {
+.voter:hover .trash-icon {
   display: block;
 }
 
@@ -57,4 +57,36 @@ radiobutton:checked {
 th,
 td {
   padding-right: 15px;
+}
+
+.menuBackground2 {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: fit-content;
+  background-color: yellow;
+}
+
+.menuitem2 {
+  display: block;
+  color: black;
+  text-align: center;
+  padding: 14px 16px;
+  float: left;
+  text-decoration: none;
+}
+
+.flash-success {
+  background-color: rgb(90, 252, 40);
+  margin-top: 10px;
+  padding: 3px;
+  width: fit-content;
+}
+
+.flash-error {
+  background-color: rgb(250, 121, 121);
+  margin-top: 10px;
+  padding: 3px;
+  width: fit-content;
 }

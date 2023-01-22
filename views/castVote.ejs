@@ -49,7 +49,7 @@
                 <input type="hidden" name="electionId" value="<%= electionId %>">
                 <% if(messages && messages.error && messages.error.length > 0)  { %>
                     <% for(var i=0; i<messages.error.length; i++) { %>
-                            <li> <%= messages.error[i] %></li>
+                            <p class="flash-error"> <%= messages.error[i] %></p>
                     <% } %>
                   <% } %>
                 <div>
