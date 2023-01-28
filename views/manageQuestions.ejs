@@ -31,7 +31,7 @@
 
 </head>
 <body>
-    <%- include('header.ejs') %>
+    <%- include('header.ejs', {user: "admin"}) %>
     <div class="centerElement">
         <a href="/elections/manage/<%= electionId %>/newQuestion"><button type="button" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">New Question</button></a>
     </div>

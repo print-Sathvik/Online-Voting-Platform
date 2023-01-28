@@ -928,4 +928,41 @@ app.post(
   }
 );
 
+app.get("/account", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+  if (request.user.userType == "voter") {
+    request.flash("error", "Voter cannot access that page");
+    return response.redirect(request.headers.referer);
+  }
+  const admin = await Admin.findByPk(request.user.id);
+  const electionCount = await Election.count({ where: {adminId: request.user.id}});
+  response.render("account", {
+    firstName: admin.firstName,
+    lastName: admin.lastName,
+    electionCount,
+    csrfToken: request.csrfToken()
+  });
+});
+
+app.post("/account/changePassword", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+  if (request.user.userType == "voter") {
+    request.flash("error", "Voter cannot access that page");
+    return response.redirect(request.headers.referer);
+  }
+  const admin = await Admin.findByPk(request.user.id);
+  const passwordCheck = await bcrypt.compare(request.body.oldPassword, admin.password);
+  if(request.body.newPassword.length < 5) {
+    request.flash("error", "Password should be of atleast 5 characters");
+    response.redirect("/account");
+  } else if(passwordCheck) {
+    const hashedPassword = await bcrypt.hash(request.body.newPassword, saltRounds);
+    await Admin.update({password: hashedPassword}, {where: {id: request.user.id}});
+    request.user.password = hashedPassword;
+    request.flash("success", "Password updated successfully");
+    response.redirect("/account");
+  } else {
+    request.flash("error", "Wrong password");
+    response.redirect("/account");
+  }
+});
+
 module.exports = app;

@@ -46,7 +46,7 @@
 
 </head>
 <body>
-    <%- include('header.ejs') %>
+    <%- include('header.ejs', {user: "admin"}) %>
     <div class="grid grid-cols-6">
         <div class="col-start-2 col-span-4">
             <h3 class="text-xl centerElement py-1">Welcome <%= firstName %></h3>

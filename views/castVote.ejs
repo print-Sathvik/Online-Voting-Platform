@@ -41,7 +41,7 @@
     </script>
 </head>
 <body>
-    <%- include('header.ejs') %>
+    <%- include('header.ejs', {user: "voter"}) %>
     <div class="grid grid-cols-6">
         <div class="col-start-2 col-span-3">
             <form method="post" action="/addVote">

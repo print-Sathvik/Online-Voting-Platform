@@ -8,9 +8,14 @@
     <link href="/css/styles.css" rel="stylesheet">
     <title>Online Voting Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function copy(text) {
+          navigator.clipboard.writeText(text);
+        }
+        </script>
 </head>
 <body>
-    <%- include('header.ejs') %>
+    <%- include('header.ejs', {user: "admin"}) %>
     <div class="grid grid-cols-6">
         <div class="col-start-2 col-span-3">
             <h1 class="text-2xl py-4 centerElement"><%= electionTitle %></h1>
@@ -19,7 +24,13 @@
                         <p class="flash-error"> <%= messages.error[i] %></p>
                 <% } %>
               <% } %>
-            <h3 class="text-lg py-2">Share this URL with the voters: <a class="text-green-600" href="/vote/election/<%= electionId %>">online-voting-sj3r.onrender.com/vote/election/<%= electionId %></a></h3>
+            <h3 class="text-lg py-2">Share this URL with the voters: <a class="text-green-600" id="url1" href="/vote/election/<%= electionId %>">online-voting-sj3r.onrender.com/vote/election/<%= electionId %></a>&nbsp&nbsp
+                <button onclick="copy('online-voting-sj3r.onrender.com/vote/election/<%= electionId %>')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline"> 
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                    </svg>
+                </button>
+            </h3>
             <h3 class="text-lg py-2 centerElement">Or</h3>
             <% if(customURL == null) { %>
                 <form action="/addCustomURL" method="post">
@@ -32,7 +43,13 @@
                     </div>
                 </form>
             <% } else { %>
-                <h3 class="text-lg py-2">Share this URL with the voters: <a class="text-green-600" href="/vote/election/<%= customURL.customURL %>">online-voting-sj3r.onrender.com/vote/election/<%= customURL.customURL %></a></h3>
+                <h3 class="text-lg py-2">Share this URL with the voters: <a class="text-green-600" id="url2" href="/vote/election/<%= customURL.customURL %>">online-voting-sj3r.onrender.com/vote/election/<%= customURL.customURL %></a>&nbsp&nbsp
+                    <button onclick="copy('online-voting-sj3r.onrender.com/vote/election/<%= customURL.customURL %>')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline"> 
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                        </svg>
+                    </button>
+                </h3>
             <% } %>
             <div>
                 <p class="text-green-600 text-lg py-6"><a href="/elections/manage/<%= electionId %>/manageVoters">Manage Voters</a></p>

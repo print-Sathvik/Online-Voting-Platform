@@ -31,7 +31,7 @@
 
 </head>
 <body>
-    <%- include('header.ejs') %>
+    <%- include('header.ejs', {user: "admin"}) %>
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-2">
             <form action="/addVoter" method="post">

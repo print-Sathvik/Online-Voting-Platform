@@ -10,7 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <%- include('header.ejs') %>
+    <%- include('header.ejs', {user: "any"}) %>
     <div class="grid grid-cols-6">
         <div class="col-start-3 col-span-2 text-lg">
             <% if(messages && messages.error && messages.error.length > 0)  { %>

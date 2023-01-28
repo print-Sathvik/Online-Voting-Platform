@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <link href="/css/styles.css" rel="stylesheet">
+    <title>Online Voting Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <%- include('header.ejs', {user: "admin"}) %>
+    <div class="grid grid-cols-6">
+        <div class="col-start-2 col-span-3">
+            <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                        <p class="flash-error centerElement"> <%= messages.error[i] %></p>
+                <% } %>
+            <% } %>
+            <% if(messages && messages.success && messages.success.length > 0)  { %>
+                <% for(var i=0; i<messages.success.length; i++) { %>
+                        <p class="flash-success centerElement"> <%= messages.success[i] %></p>
+                <% } %>
+            <% } %>
+            <h3 class="text-lg py-3 mt-20 centerElement">First Name: <%= firstName %></h3>
+            <h3 class="text-lg py-3 centerElement">Last Name: <%= lastName %></h3>
+            <h3 class="text-lg py-3 centerElement">Elections created: <%= electionCount %></h3>
+            <form action="/account/changePassword" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="py-3 centerElement">
+                    <label for="oldPassword">Old Password:</label>
+                    <input type="password" name="oldPassword" class="border border-gray-300 rounded p-2 w-half" required>
+                </div>
+                <div class="py-3 centerElement">
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" name="newPassword" class="border border-gray-300 rounded p-2 w-half" required>
+                </div>
+                <div class="centerElement py-3">
+                    <button type="submit" class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-4 py-3">Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

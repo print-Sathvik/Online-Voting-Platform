@@ -1,6 +1,8 @@
-# Update 4:
+# Update:
 
-Completed all the required features. Tests and optional features are not remaining.
+Completed all the required and optional features including admin password change.
+Voter can be deleted only if the voter has not voted until that point.
+Admin can change password in the home page by clicking on the account symbol on the top right
 
 # Online-Voting-Platform
 

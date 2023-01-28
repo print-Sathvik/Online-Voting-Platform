@@ -12,7 +12,7 @@
 </head>
 
 <body>
-    <%- include('header.ejs') %>
+    <%- include('header.ejs', {user: "admin"}) %>
     <% let optionsGraph = [];
     let optionsCountGraph = []; %>
     <h1 class="text-4xl centerElement"><%= message %></h1>
