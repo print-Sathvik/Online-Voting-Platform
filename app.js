@@ -347,7 +347,6 @@ app.delete(
       return response.redirect(request.headers.referer);
     }
     try {
-      console.log(request.body);
       await Election.remove(request.params.id, request.user.id); //Added user id to check who is deleting
       return response.json({ success: true });
     } catch (error) {
@@ -480,6 +479,39 @@ app.post(
         `/elections/manage/${request.body.electionId}/manageVoters`
       );
     }
+  }
+);
+
+app.delete(
+  "/elections/manage/:id/manageVoters/:voterId",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    if (request.user.userType == "voter") {
+      request.flash("error", "Voter cannot access that page");
+      return response.redirect(request.headers.referer);
+    }
+    try {
+      const voted = await Response.findOne({ where: {voterId: request.params.voterId}});
+    if(voted != null) {
+      throw "Cannot delete a voter who has voted"
+    }
+    await ElectionVoter.destroy({
+      where: {
+        voterId: request.params.voterId
+      }
+    });
+    await Voter.destroy({
+      where: {
+        id: request.params.voterId
+      }
+    });
+    response.send(200);
+  } catch(error) {
+    console.log(error);
+    request.flash("error",error);
+    response.status(200); //sending 200 resonse to fetch call of function deleteVoter so that window reloads and flash message is displayed
+    response.send(error);
+  }
   }
 );
 
