@@ -30,7 +30,7 @@ const { request } = require("https");
 const { response } = require("express");
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("A secret string"));
-app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
+// app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
 
 //Setting EJS as view engine
 app.set("view engine", "ejs");
@@ -136,7 +136,7 @@ app.get(
   async (request, response) => {
     response.render("index", {
       title: "Voting Application",
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //request.csrfToken(),
     });
   }
 );
@@ -147,7 +147,7 @@ app.get(
   async (request, response) => {
     response.render("signup", {
       title: "Signup",
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //"" //request.csrfToken(),
     });
   }
 );
@@ -200,7 +200,7 @@ app.get(
     response.render("login", {
       title: "Login",
       formAction: "/session",
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //"" //request.csrfToken(),
     });
   }
 );
@@ -223,7 +223,7 @@ app.get(
     response.render("login", {
       title: "Login",
       formAction: "/voterSession",
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //request.csrfToken(),
     });
   }
 );
@@ -256,7 +256,7 @@ app.get(
         title: "Voting Application",
         firstName: loggedInUser.firstName,
         allElections,
-        csrfToken: request.csrfToken(),
+        csrfToken: "" //request.csrfToken(),
       });
     } else {
       response.json({
@@ -333,7 +333,7 @@ app.get(
       electionId,
       chartType: request.params.chartType || "bar",
       message: `Progress of ${election.title}`,
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //request.csrfToken(),
     });
   }
 );
@@ -396,7 +396,7 @@ app.get(
       customURL: await Url.findOne({
         where: { electionId: request.params.id },
       }),
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //request.csrfToken(),
     });
   }
 );
@@ -419,7 +419,7 @@ app.get(
       electionId,
       questions,
       options,
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //request.csrfToken(),
     });
   }
 );
@@ -438,7 +438,7 @@ app.get(
     response.render("manageVoters", {
       electionId: electionId,
       allVoters,
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //request.csrfToken(),
     });
   }
 );
@@ -533,7 +533,7 @@ app.get(
       electionId,
       questions,
       options,
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //request.csrfToken(),
     });
   }
 );
@@ -621,7 +621,7 @@ app.get(
         electionId,
         questions,
         options,
-        csrfToken: request.csrfToken(),
+        csrfToken: "" //request.csrfToken(),
       });
     } catch (error) {
       console.log(error);
@@ -645,7 +645,7 @@ app.get(
     response.render("editQuestion", {
       question,
       options,
-      csrfToken: request.csrfToken(),
+      csrfToken: "" //request.csrfToken(),
     });
   }
 );
@@ -853,7 +853,7 @@ app.get("/vote/:id/:chartType(bar|pie|doughnut)", async (request, response) => {
         electionId,
         chartType: request.params.chartType,
         message: `Results of ${election.title}`,
-        csrfToken: request.csrfToken(),
+        csrfToken: "" //request.csrfToken(),
       });
     } else {
       throw "Election is not yet over";
@@ -887,7 +887,7 @@ app.get(
       if (await Response.isResponded(questions[0].id, request.user.id)) {
         response.render("result", {
           message: "You have already voted. Please wait for the result",
-          csrfToken: request.csrfToken(),
+          csrfToken: "" //request.csrfToken(),
         });
       } else {
         response.render("castVote", {
@@ -895,13 +895,13 @@ app.get(
           questions,
           options,
           message: "The questions will appear here",
-          csrfToken: request.csrfToken(),
+          csrfToken: "" //request.csrfToken(),
         });
       }
     } else if (election.started == false) {
       response.render("result", {
         message: "Election has not yet started",
-        csrfToken: request.csrfToken(),
+        csrfToken: "" //request.csrfToken(),
       });
     }
   }
@@ -939,7 +939,7 @@ app.get("/account", connectEnsureLogin.ensureLoggedIn(), async (request, respons
     firstName: admin.firstName,
     lastName: admin.lastName,
     electionCount,
-    csrfToken: request.csrfToken()
+    csrfToken: "" //request.csrfToken()
   });
 });
 
