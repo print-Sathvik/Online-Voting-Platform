@@ -5,21 +5,17 @@ env:
   PG_USER: postgres
   PG_PASSWORD: postgres
 jobs:
-  # Label of the container job
   run-tests:
-    # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
 
-    # Service containers to run with `container-job`
     services:
       # Label used to access the service container
       postgres:
         # Docker Hub image
         image: postgres:15.2
-        # Provide the password for postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: wd-todo-test
         # Set health checks to wait until postgres has started
         options: >-
@@ -31,7 +27,6 @@ jobs:
           - 5432:5432
 
     steps:
-      # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
         uses: actions/checkout@v3
 
@@ -56,3 +51,15 @@ jobs:
         run: |
           npm install cypress cypress-json-results
           npx cypress run
+  
+  build_deploy:
+    needs: run-tests
+    name: 'Deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          wait-for-success: true
