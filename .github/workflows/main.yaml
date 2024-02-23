@@ -14,8 +14,8 @@ jobs:
         # Docker Hub image
         image: postgres:15.2
         env:
-          POSTGRES_USER: ${{ env.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: wd-todo-test
         # Set health checks to wait until postgres has started
         options: >-
