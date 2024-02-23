@@ -1,9 +1,5 @@
 name: Auto Test Election creation and Voting system
 on: push
-env:
-  PG_DATABASE: wd-todo-test
-  PG_USER: postgres
-  PG_PASSWORD: postgres
 jobs:
   run-tests:
     runs-on: ubuntu-latest
@@ -64,6 +60,8 @@ jobs:
           api-key: ${{ secrets.RENDER_API_KEY }}
   
   notify:
+    needs: [run-tests, build_deploy]
+    if: ${{ always() }}
     name: Discord Notification
     runs-on: ubuntu-latest
     steps:
@@ -72,7 +70,7 @@ jobs:
         with:
           webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title: New Commit Pushed
-          message: "**${{ github.event.push.head_commit.message }}**\n**Creator:** ${{ github.event.push.pusher.username }}\n${{ github.event.push.head_commit.url }}"
+          message: "${{ github.push.head_commit.message }} \n Creator: ${{ github.push.pusher.username }} \n ${{ github.event.push.head_commit.url }}"
           include_image: true
           avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           username: GitHub Push Notifier
