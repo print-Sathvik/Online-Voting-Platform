@@ -66,11 +66,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Discord notification
-        uses: stegzilla/discord-notify@v2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        uses: Ilshidur/action-discord@master
         with:
-          webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: New Commit Pushed
-          message: "${{ github.push.head_commit.message }} \n Creator: ${{ github.push.pusher.username }} \n ${{ github.event.push.head_commit.url }}"
-          include_image: true
-          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-          username: GitHub Push Notifier
+          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
