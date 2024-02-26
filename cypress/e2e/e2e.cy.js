@@ -104,7 +104,7 @@ describe('Election Organizer Test Suite', () => {
 
   it('Signout', () => {
     cy.visit("/elections")
-    cy.get("a").contains('Signout').click()
+    cy.get('a').contains('Signout').click()
     cy.location().should((loc) => {
       expect(loc.pathname).to.eq("/");
     });
