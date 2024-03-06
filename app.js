@@ -20,14 +20,12 @@ const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const flash = require("connect-flash");
 const LocalStrategy = require("passport-local");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const saltRounds = 10;
 
 app.use(bodyParser.json());
 const path = require("path");
-const { request } = require("https");
-const { response } = require("express");
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("A secret string"));
 // app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));

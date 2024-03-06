@@ -48,10 +48,32 @@ jobs:
           npm install cypress cypress-json-results
           npx cypress run
   
+  containerize:
+    name: Build and push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: latest
+  
   build_deploy:
     needs: run-tests
     name: 'Deploy'
     runs-on: ubuntu-latest
+    # Uses the action provided by render
+    # By using the API key of my account and Service ID of the web service started in render
     steps:
       - name: Deploy to production
         uses: johnbeynon/render-deploy-action@v0.0.8
@@ -61,9 +83,12 @@ jobs:
   
   notify:
     needs: [run-tests, build_deploy]
+    # Runs this task irrespective of outcome of previous two jobs using if always()
     if: ${{ always() }}
     name: Discord Notification
     runs-on: ubuntu-latest
+    # Webhook URL is generated for my discord server and stored as
+    # secret or env variable which is accessed using secrets.DISCORD_WEBHOOK_URL
     steps:
       - name: Send Discord notification
         uses: tsickert/discord-webhook@v5.3.0
@@ -72,5 +97,5 @@ jobs:
           embed-title: New Commit Status - ${{ job.status }}
           embed-url: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
           content: "A new commit is pushed to the application Online Voting Platform"
-          embed-author-name: ${{ github.event.head_commit.author.name }}
+          embed-author-name: ${{ github.event.head_commit.author.username }}
           embed-color: 65280

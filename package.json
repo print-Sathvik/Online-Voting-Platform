@@ -4,7 +4,7 @@
   "description": "Election Voting Website",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -e js,ejs",
+    "start": "NODE_ENV=development nodemon -e js,ejs",
     "start:prod": "node index.js PORT=5000",
     "db:create:test": "NODE_ENV=test npx sequelize-cli db:create",
     "pretest": "NODE_ENV=test npx sequelize-cli db:drop && NODE_ENV=test npx sequelize-cli db:create  && NODE_ENV=test npx sequelize-cli db:migrate",
@@ -23,10 +23,11 @@
     ]
   },
   "dependencies": {
-    "bcrypt": "^5.1.0",
+    "bcryptjs": "^2.4.3",
     "connect-ensure-login": "^0.1.1",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
     "ejs": "^3.1.8",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
@@ -34,6 +35,7 @@
     "passport-local": "^1.0.0",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
+    "pm2": "^5.3.1",
     "sequelize": "^6.28.0",
     "tiny-csrf": "^1.1.3"
   },
