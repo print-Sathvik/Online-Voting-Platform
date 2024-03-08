@@ -50,6 +50,7 @@ jobs:
   
   containerize:
     name: Build and push Docker image to Docker Hub
+    needs: run-tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
